@@ -1,0 +1,16 @@
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.evento   { background: #2E86C1; }
+.prova    { background: #C0392B; }
+.feriado  { background: #8E44AD; }
+.palestra { background: #1E8449; }
+.default  { background: var(--color-text-mid); }

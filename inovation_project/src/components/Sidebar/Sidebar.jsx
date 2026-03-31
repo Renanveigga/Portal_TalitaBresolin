@@ -1,14 +1,16 @@
 import { useLocation } from "react-router-dom";
 import styles from "./Sidebar.module.css";
 import { NAV_ITEMS } from "../../data/Mockdata";
+import { Sun, MoonStars } from "react-bootstrap-icons";
 
 const ROUTE_MAP = {
-  home:    "/",
+  home: "/",
   library: "/biblioteca",
-  lost:    "/achados",
+  lost: "/achados",
   courses: "/cursos",
   history: "/historia",
-  admin:   "/admin",
+  admin: "/admin",
+  talentos: "/talentos",
 };
 
 export default function Sidebar({ onNavigate, dark, toggleTheme }) {
@@ -47,10 +49,17 @@ export default function Sidebar({ onNavigate, dark, toggleTheme }) {
         })}
       </nav>
 
-      {/* Theme Toggle */}
       <div className={styles.themeToggle}>
         <span className={styles.themeLabel}>
-          {dark ? "☀️ Modo Claro" : "🌙 Modo Escuro"}
+          {dark ? (
+            <>
+              <Sun size={18} style={{ marginRight: '8px' }} /> Modo Claro
+            </>
+          ) : (
+            <>
+              <MoonStars size={18} style={{ marginRight: '8px' }} /> Modo Escuro
+            </>
+          )}
         </span>
         <button
           className={`${styles.toggleBtn} ${dark ? styles.toggleDark : ""}`}
@@ -60,7 +69,6 @@ export default function Sidebar({ onNavigate, dark, toggleTheme }) {
         </button>
       </div>
 
-      {/* Footer */}
       <div className={styles.footer}>
         Desenvolvido por alunos<br />
         1º e 3º ADM · 1º TI

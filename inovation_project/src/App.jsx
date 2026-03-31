@@ -12,6 +12,7 @@ import Courses   from "./pages/Courses/Courses";
 import History   from "./pages/History/History";
 import Login     from "./pages/Admin/Login";
 import Admin     from "./pages/Admin/Admin";
+import Talentos from "./pages/Talentos/Talentos";
 
 const ROUTE_MAP = {
   home:    "/",
@@ -20,6 +21,7 @@ const ROUTE_MAP = {
   courses: "/cursos",
   history: "/historia",
   admin:   "/admin",
+  talentos: "/talentos",
 };
 
 export default function App() {
@@ -52,7 +54,6 @@ export default function App() {
         toggleTheme={toggleTheme}
       />
       <div className="app-content">
-        {/* Topbar com busca */}
         <div className="app-topbar">
           <SearchBar />
         </div>
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="/historia"   element={<History />} />
             <Route path="/admin"      element={<Login onLogin={handleLogin} />} />
             <Route path="*"           element={<Navigate to="/" />} />
+            <Route path="/talentos"   element={<Talentos />} />
           </Routes>
         </main>
       </div>

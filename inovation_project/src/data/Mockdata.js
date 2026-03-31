@@ -4,7 +4,8 @@ import {
   QuestionCircle, 
   JournalBookmark, 
   ClockHistory, 
-  PersonGear 
+  PersonGear,
+  Stars, 
 } from 'react-bootstrap-icons';
 
 export const NAV_ITEMS = [
@@ -14,6 +15,7 @@ export const NAV_ITEMS = [
   { id: "courses", label: "Cursos Técnicos",   icon: JournalBookmark },
   { id: "history", label: "Nossa História",    icon: ClockHistory },
   { id: "admin",   label: "Admin",             icon: PersonGear },
+  { id: "talentos", label: "Banco de Talentos", icon: Stars },
 ];
 
 export const AVISOS = [

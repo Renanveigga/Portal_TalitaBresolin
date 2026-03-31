@@ -4,12 +4,14 @@ import AdminAvisos from "../../components/AdminAvisos/AdminAvisos";
 import AdminLivros from "../../components/AdminLivros/AdminLivros";
 import AdminAchados from "../../components/AdminAchados/AdminAchados";
 import AdminEmprestimos from "../../components/AdminEmprestimos/AdminEmprestimos";
+import AdminTalentos from "../../components/AdminTalentos/AdminTalentos";
 
 const TABS = [
-  { id: "avisos", label: "📋 Avisos" },
-  { id: "livros", label: "📚 Livros" },
-  { id: "achados", label: "🔍 Achados e Perdidos" },
-  { id: "emprestimos", label: "📖 Empréstimos" },
+  { id: "avisos",      label: "📋 Avisos"            },
+  { id: "livros",      label: "📚 Livros"             },
+  { id: "achados",     label: "🔍 Achados e Perdidos" },
+  { id: "emprestimos", label: "📖 Empréstimos"        },
+  { id: "talentos",    label: "🌟 Talentos"           },
 ];
 
 export default function Admin({ onLogout }) {
@@ -51,6 +53,7 @@ export default function Admin({ onLogout }) {
           {tab === "livros" && <AdminLivros />}
           {tab === "achados" && <AdminAchados />}
           {tab === "emprestimos" && <AdminEmprestimos />}
+          {tab === "talentos" && <AdminTalentos />}
         </div>
       </div>
 

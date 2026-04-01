@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 export function useTheme() {
   const [dark, setDark] = useState(() => {
     const salvo = localStorage.getItem("tema");
-    // Se nunca escolheu, começa no escuro
     return salvo ? salvo === "dark" : true;
   });
 

@@ -17,10 +17,10 @@ const HABILIDADES_SUGERIDAS = [
 ];
 
 export default function Talentos() {
-  const [talentos, setTalentos]       = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [talentos, setTalentos] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filtroCurso, setFiltroCurso] = useState("");
-  const [filtroHab, setFiltroHab]     = useState("");
+  const [filtroHab, setFiltroHab] = useState("");
   const [showCadastro, setShowCadastro] = useState(false);
   const [talentoAberto, setTalentoAberto] = useState(null);
 
@@ -36,7 +36,7 @@ export default function Talentos() {
   const handleFiltrar = () => {
     const filtros = {};
     if (filtroCurso) filtros.curso = filtroCurso;
-    if (filtroHab)   filtros.habilidade = filtroHab;
+    if (filtroHab) filtros.habilidade = filtroHab;
     carregar(filtros);
   };
 
@@ -161,7 +161,7 @@ export default function Talentos() {
 
                 <div className={styles.links}>
                   {t.linkedin && <span className={styles.linkIcon} title="LinkedIn">💼</span>}
-                  {t.github   && <span className={styles.linkIcon} title="GitHub">💻</span>}
+                  {t.github && <span className={styles.linkIcon} title="GitHub">💻</span>}
                   {t.curriculo_url && <span className={styles.linkIcon} title="Currículo">📄</span>}
                 </div>
               </div>
@@ -176,13 +176,13 @@ export default function Talentos() {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.modalClose} onClick={() => setTalentoAberto(null)}>✕</button>
 
+            {/* Header colorido */}
             <div className={`${styles.modalHeader} ${talentoAberto.curso === "TI" ? styles.headerTI : styles.headerADM}`}>
               <div className={styles.modalAvatar}>
-                {talentoAberto.foto_url ? (
-                  <img src={`${API_URL}${talentoAberto.foto_url}`} alt={talentoAberto.nome} className={styles.avatarImg} />
-                ) : (
-                  <span className={styles.avatarInitials}>{getInitials(talentoAberto.nome)}</span>
-                )}
+                {talentoAberto.foto_url
+                  ? <img src={`${API_URL}${talentoAberto.foto_url}`} alt={talentoAberto.nome} className={styles.avatarImg} />
+                  : <span className={styles.avatarInitials}>{getInitials(talentoAberto.nome)}</span>
+                }
               </div>
             </div>
 
@@ -190,30 +190,64 @@ export default function Talentos() {
               <p className={styles.modalNome}>{talentoAberto.nome}</p>
               <p className={styles.modalInfo}>{talentoAberto.curso} · {talentoAberto.ano} ano</p>
 
-              <p className={styles.modalLabel}>Habilidades</p>
-              <div className={styles.habilidades}>
-                {talentoAberto.habilidades.split(",").map((h, i) => (
-                  <span key={i} className={styles.habilidadeTag}>{h.trim()}</span>
-                ))}
+              {/* Bio renderizada */}
+              {talentoAberto.bio_html && (
+                <div className={styles.modalSection}>
+                  <p className={styles.modalLabel}>Sobre</p>
+                  <div
+                    className={styles.bioRendered}
+                    dangerouslySetInnerHTML={{ __html: talentoAberto.bio_html }}
+                  />
+                </div>
+              )}
+
+              {/* Habilidades */}
+              <div className={styles.modalSection}>
+                <p className={styles.modalLabel}>Habilidades</p>
+                <div className={styles.habilidades}>
+                  {talentoAberto.habilidades.split(",").map((h, i) => (
+                    <span key={i} className={styles.habilidadeTag}>{h.trim()}</span>
+                  ))}
+                </div>
               </div>
 
-              <div className={styles.modalLinks}>
-                {talentoAberto.linkedin && (
-                  <a href={talentoAberto.linkedin} target="_blank" rel="noreferrer" className={styles.modalLink}>
-                    💼 LinkedIn
-                  </a>
-                )}
-                {talentoAberto.github && (
-                  <a href={talentoAberto.github} target="_blank" rel="noreferrer" className={styles.modalLink}>
-                    💻 GitHub
-                  </a>
-                )}
-                {talentoAberto.curriculo_url && (
-                  <a href={`${API_URL}${talentoAberto.curriculo_url}`} target="_blank" rel="noreferrer" className={styles.modalLink}>
-                    📄 Ver Currículo
-                  </a>
-                )}
-              </div>
+              {(talentoAberto.email || talentoAberto.linkedin || talentoAberto.github || talentoAberto.instagram) && (
+                <div className={styles.modalSection}>
+                  <p className={styles.modalLabel}>Contato</p>
+                  <div className={styles.modalContatos}>
+                    {talentoAberto.email && (
+                      <a href={`mailto:${talentoAberto.email}`} className={styles.contatoItem}>
+                        <span className={styles.contatoIcon}>📧</span>
+                        <span>{talentoAberto.email}</span>
+                      </a>
+                    )}
+                    {talentoAberto.linkedin && (
+                      <a href={talentoAberto.linkedin} target="_blank" rel="noreferrer" className={styles.contatoItem}>
+                        <span className={styles.contatoIcon}>💼</span>
+                        <span>LinkedIn</span>
+                      </a>
+                    )}
+                    {talentoAberto.github && (
+                      <a href={talentoAberto.github} target="_blank" rel="noreferrer" className={styles.contatoItem}>
+                        <span className={styles.contatoIcon}>💻</span>
+                        <span>GitHub</span>
+                      </a>
+                    )}
+                    {talentoAberto.instagram && (
+                      <a href={talentoAberto.instagram} target="_blank" rel="noreferrer" className={styles.contatoItem}>
+                        <span className={styles.contatoIcon}>📸</span>
+                        <span>Instagram</span>
+                      </a>
+                    )}
+                    {talentoAberto.curriculo_url && (
+                      <a href={`${API_URL}${talentoAberto.curriculo_url}`} target="_blank" rel="noreferrer" className={styles.contatoItem}>
+                        <span className={styles.contatoIcon}>📄</span>
+                        <span>Ver Currículo</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

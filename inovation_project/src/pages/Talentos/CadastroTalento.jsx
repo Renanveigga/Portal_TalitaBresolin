@@ -1,23 +1,35 @@
 import { useState, useRef } from "react";
 import { createTalento } from "../../services/talentosService";
 import styles from "./Talentos.module.css";
+import { marked } from "marked";
 
-const HABILIDADES_TI  = ["JavaScript", "Python", "React", "Node.js", "MySQL", "PHP", "Java", "Redes", "Hardware", "Linux", "CSS", "TypeScript"];
-const HABILIDADES_ADM = ["Excel", "Word", "PowerPoint", "Gestão", "Marketing", "Contabilidade", "Finanças", "RH", "Logística", "Vendas", "Atendimento"];
+const HABILIDADES_TI = ["JavaScript", "Python", "React", "Node.js", "MySQL", "PHP", "Java", "Redes", "Hardware", "Linux", "CSS", "TypeScript", "Git", "Docker"];
+const HABILIDADES_ADM = ["Excel", "Word", "PowerPoint", "Gestão", "Marketing", "Contabilidade", "Finanças", "RH", "Logística", "Vendas", "Atendimento", "SAP"];
+
+const REDES = [
+  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/...", icon: "💼" },
+  { key: "github", label: "GitHub", placeholder: "https://github.com/...", icon: "💻" },
+  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", icon: "📸" },
+];
 
 export default function CadastroTalento({ onVoltar }) {
   const [form, setForm] = useState({
     nome: "", curso: "TI", ano: "1º",
-    habilidades: [], linkedin: "", github: "",
+    habilidades: [],
+    habPersonalizada: "",
+    linkedin: "", github: "", instagram: "", email: "",
+    bio: "",
   });
-  const [foto, setFoto]           = useState(null);
+
+  const [foto, setFoto] = useState(null);
   const [curriculo, setCurriculo] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(null);
-  const [enviado, setEnviado]     = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [erro, setErro]           = useState(null);
-  const fotoRef                   = useRef();
-  const curriculoRef              = useRef();
+  const [enviado, setEnviado] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState(null);
+  const [bioPreview, setBioPreview] = useState(false);
+  const fotoRef = useRef();
+  const curriculoRef = useRef();
 
   const habilidadesOpts = form.curso === "TI" ? HABILIDADES_TI : HABILIDADES_ADM;
 
@@ -30,22 +42,42 @@ export default function CadastroTalento({ onVoltar }) {
     }));
   };
 
+  const addHabPersonalizada = () => {
+    const h = form.habPersonalizada.trim();
+    if (!h || form.habilidades.includes(h)) return;
+    setForm((prev) => ({
+      ...prev,
+      habilidades: [...prev.habilidades, h],
+      habPersonalizada: "",
+    }));
+  };
+
+  const removeHabilidade = (h) => {
+    setForm((prev) => ({
+      ...prev,
+      habilidades: prev.habilidades.filter((x) => x !== h),
+    }));
+  };
+
   const handleEnviar = async () => {
     if (!form.nome || !form.habilidades.length) {
-      setErro("Preencha nome e selecione ao menos uma habilidade.");
+      setErro("Preencha o nome e selecione ao menos uma habilidade.");
       return;
     }
     setLoading(true);
     setErro(null);
     try {
       const formData = new FormData();
-      formData.append("nome",        form.nome);
-      formData.append("curso",       form.curso);
-      formData.append("ano",         form.ano);
+      formData.append("nome", form.nome);
+      formData.append("curso", form.curso);
+      formData.append("ano", form.ano);
       formData.append("habilidades", form.habilidades.join(", "));
-      formData.append("linkedin",    form.linkedin);
-      formData.append("github",      form.github);
-      if (foto)      formData.append("foto",      foto);
+      formData.append("linkedin", form.linkedin);
+      formData.append("github", form.github);
+      formData.append("instagram", form.instagram);
+      formData.append("email", form.email);
+      formData.append("bio", form.bio);
+      if (foto) formData.append("foto", foto);
       if (curriculo) formData.append("curriculo", curriculo);
       await createTalento(formData);
       setEnviado(true);
@@ -64,7 +96,7 @@ export default function CadastroTalento({ onVoltar }) {
           <p className={styles.successIcon}>🎉</p>
           <p className={styles.successTitle}>Perfil enviado!</p>
           <p className={styles.successDesc}>
-            Seu perfil está em análise e será publicado em breve pela equipe do colégio.
+            Seu perfil está em análise e será publicado em breve.
           </p>
           <button className={styles.btnCadastrar} onClick={onVoltar}>
             Ver banco de talentos
@@ -78,62 +110,45 @@ export default function CadastroTalento({ onVoltar }) {
     <div>
       <button className={styles.btnVoltar} onClick={onVoltar}>← Voltar</button>
       <h2 className="page-title">🌟 Cadastrar Perfil</h2>
-      <p className="page-subtitle">Preencha suas informações para aparecer no Banco de Talentos.</p>
+      <p className="page-subtitle">
+        Preencha suas informações para aparecer no Banco de Talentos.
+      </p>
 
       <div className={styles.cadastroGrid}>
 
         <div className={styles.fotoCol}>
-          <div
-            className={styles.fotoUpload}
-            onClick={() => fotoRef.current.click()}
-          >
-            {fotoPreview ? (
-              <img src={fotoPreview} alt="preview" className={styles.fotoPreview} />
-            ) : (
-              <>
+          <div className={styles.fotoUpload} onClick={() => fotoRef.current.click()}>
+            {fotoPreview
+              ? <img src={fotoPreview} alt="preview" className={styles.fotoPreview} />
+              : <>
                 <span className={styles.fotoIcon}>📷</span>
                 <p className={styles.fotoText}>Clique para adicionar foto</p>
                 <p className={styles.fotoSub}>JPG, PNG — máx 3MB</p>
               </>
-            )}
+            }
           </div>
-          <input
-            ref={fotoRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
+          <input ref={fotoRef} type="file" accept="image/*" style={{ display: "none" }}
             onChange={(e) => {
               const f = e.target.files[0];
               if (f) { setFoto(f); setFotoPreview(URL.createObjectURL(f)); }
             }}
           />
 
-          <div
-            className={styles.curriculoUpload}
-            onClick={() => curriculoRef.current.click()}
-          >
-            <span>{curriculo ? `📄 ${curriculo.name}` : "📄 Anexar currículo (PDF)"}</span>
+          <div className={styles.curriculoUpload} onClick={() => curriculoRef.current.click()}>
+            {curriculo ? `📄 ${curriculo.name}` : "📄 Anexar currículo (PDF)"}
           </div>
-          <input
-            ref={curriculoRef}
-            type="file"
-            accept="application/pdf"
+          <input ref={curriculoRef} type="file" accept="application/pdf"
             style={{ display: "none" }}
             onChange={(e) => setCurriculo(e.target.files[0] || null)}
           />
         </div>
 
-        {/* Coluna direita — dados */}
         <div className={styles.dadosCol}>
 
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabel}>Nome completo *</label>
-            <input
-              className={styles.input}
-              placeholder="Seu nome completo"
-              value={form.nome}
-              onChange={(e) => setForm({ ...form, nome: e.target.value })}
-            />
+            <input className={styles.input} placeholder="Seu nome completo"
+              value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
           </div>
 
           <div className={styles.rowGroup}>
@@ -141,8 +156,7 @@ export default function CadastroTalento({ onVoltar }) {
               <label className={styles.fieldLabel}>Curso *</label>
               <div className={styles.cursoBtns}>
                 {["TI", "ADM"].map((c) => (
-                  <button
-                    key={c}
+                  <button key={c}
                     className={`${styles.cursoBtn} ${form.curso === c ? styles.cursoBtnActive : ""}`}
                     onClick={() => setForm({ ...form, curso: c, habilidades: [] })}
                   >
@@ -151,13 +165,11 @@ export default function CadastroTalento({ onVoltar }) {
                 ))}
               </div>
             </div>
-
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>Ano *</label>
               <div className={styles.cursoBtns}>
                 {["1º", "2º", "3º"].map((a) => (
-                  <button
-                    key={a}
+                  <button key={a}
                     className={`${styles.cursoBtn} ${form.ano === a ? styles.cursoBtnActive : ""}`}
                     onClick={() => setForm({ ...form, ano: a })}
                   >
@@ -172,8 +184,7 @@ export default function CadastroTalento({ onVoltar }) {
             <label className={styles.fieldLabel}>Habilidades * (selecione as que domina)</label>
             <div className={styles.habilidadesOpts}>
               {habilidadesOpts.map((h) => (
-                <button
-                  key={h}
+                <button key={h}
                   className={`${styles.habBtn} ${form.habilidades.includes(h) ? styles.habBtnActive : ""}`}
                   onClick={() => toggleHabilidade(h)}
                 >
@@ -183,24 +194,90 @@ export default function CadastroTalento({ onVoltar }) {
             </div>
           </div>
 
-          <div className={styles.rowGroup}>
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>LinkedIn</label>
+          <div className={styles.fieldGroup}>
+            <label className={styles.fieldLabel}>Adicionar habilidade personalizada</label>
+            <div className={styles.habCustomRow}>
               <input
                 className={styles.input}
-                placeholder="https://linkedin.com/in/..."
-                value={form.linkedin}
-                onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
+                placeholder="Ex: Photoshop, TOTVS, Inglês..."
+                value={form.habPersonalizada}
+                onChange={(e) => setForm({ ...form, habPersonalizada: e.target.value })}
+                onKeyDown={(e) => e.key === "Enter" && addHabPersonalizada()}
               />
+              <button className={styles.btnAddHab} onClick={addHabPersonalizada}>
+                + Adicionar
+              </button>
             </div>
-            <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>GitHub</label>
-              <input
-                className={styles.input}
-                placeholder="https://github.com/..."
-                value={form.github}
-                onChange={(e) => setForm({ ...form, github: e.target.value })}
+
+            {form.habilidades.length > 0 && (
+              <div className={styles.habSelecionadas}>
+                <p className={styles.habSelecionadasLabel}>Selecionadas:</p>
+                <div className={styles.habilidades}>
+                  {form.habilidades.map((h) => (
+                    <span key={h} className={styles.habTagRemovivel}>
+                      {h}
+                      <button className={styles.habRemove} onClick={() => removeHabilidade(h)}>×</button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <div className={styles.bioHeader}>
+              <label className={styles.fieldLabel}>Bio (suporta Markdown)</label>
+              <button
+                className={styles.bioToggle}
+                onClick={() => setBioPreview((p) => !p)}
+              >
+                {bioPreview ? "✏️ Editar" : "👁️ Preview"}
+              </button>
+            </div>
+
+            {bioPreview ? (
+              <div
+                className={styles.bioPreview}
+                dangerouslySetInnerHTML={{
+                  __html: form.bio
+                    ? marked.parse(form.bio)
+                    : "<p style='color: var(--color-text-light)'>Nada para mostrar ainda...</p>",
+                }}
               />
+            ) : (
+              <textarea
+                className={styles.textarea}
+                placeholder={`Escreva sobre você usando Markdown:\n\n**Experiência:** ...\n\n- Habilidade 1\n- Habilidade 2`}
+                value={form.bio}
+                onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                rows={6}
+              />
+            )}
+            <p className={styles.bioHint}>
+              Suporta: **negrito**, *itálico*, - listas, [links](url)
+            </p>
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.fieldLabel}>E-mail de contato</label>
+            <input className={styles.input} placeholder="seu@email.com" type="email"
+              value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.fieldLabel}>Redes sociais</label>
+            <div className={styles.redesGrid}>
+              {REDES.map((r) => (
+                <div key={r.key} className={styles.redeItem}>
+                  <span className={styles.redeIcon}>{r.icon}</span>
+                  <input
+                    className={styles.input}
+                    placeholder={r.placeholder}
+                    value={form[r.key]}
+                    onChange={(e) => setForm({ ...form, [r.key]: e.target.value })}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -217,6 +294,7 @@ export default function CadastroTalento({ onVoltar }) {
           >
             {loading ? "Enviando..." : "Enviar para aprovação"}
           </button>
+
         </div>
       </div>
     </div>

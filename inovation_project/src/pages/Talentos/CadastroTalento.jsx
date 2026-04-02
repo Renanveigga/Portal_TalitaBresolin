@@ -2,14 +2,15 @@ import { useState, useRef } from "react";
 import { createTalento } from "../../services/talentosService";
 import styles from "./Talentos.module.css";
 import { marked } from "marked";
+import { CameraFill, Laptop, SuitcaseLgFill, LockFill, LaptopFill, StarFill, FileEarmarkRichtextFill, PatchCheckFill, EyeFill, PencilFill } from "react-bootstrap-icons";
 
 const HABILIDADES_TI = ["JavaScript", "Python", "React", "Node.js", "MySQL", "PHP", "Java", "Redes", "Hardware", "Linux", "CSS", "TypeScript", "Git", "Docker"];
 const HABILIDADES_ADM = ["Excel", "Word", "PowerPoint", "Gestão", "Marketing", "Contabilidade", "Finanças", "RH", "Logística", "Vendas", "Atendimento", "SAP"];
 
 const REDES = [
-  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/...", icon: "💼" },
-  { key: "github", label: "GitHub", placeholder: "https://github.com/...", icon: "💻" },
-  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", icon: "📸" },
+  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/...", icon: <SuitcaseLgFill /> },
+  { key: "github", label: "GitHub", placeholder: "https://github.com/...", icon: <Laptop /> },
+  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", icon: <CameraFill /> },
 ];
 
 export default function CadastroTalento({ onVoltar }) {
@@ -93,7 +94,7 @@ export default function CadastroTalento({ onVoltar }) {
       <div>
         <button className={styles.btnVoltar} onClick={onVoltar}>← Voltar</button>
         <div className={styles.successCard}>
-          <p className={styles.successIcon}>🎉</p>
+          <p className={styles.successIcon}><PatchCheckFill /></p>
           <p className={styles.successTitle}>Perfil enviado!</p>
           <p className={styles.successDesc}>
             Seu perfil está em análise e será publicado em breve.
@@ -109,7 +110,7 @@ export default function CadastroTalento({ onVoltar }) {
   return (
     <div>
       <button className={styles.btnVoltar} onClick={onVoltar}>← Voltar</button>
-      <h2 className="page-title">🌟 Cadastrar Perfil</h2>
+      <h2 className="page-title">< StarFill /> Cadastrar Perfil</h2>
       <p className="page-subtitle">
         Preencha suas informações para aparecer no Banco de Talentos.
       </p>
@@ -121,7 +122,7 @@ export default function CadastroTalento({ onVoltar }) {
             {fotoPreview
               ? <img src={fotoPreview} alt="preview" className={styles.fotoPreview} />
               : <>
-                <span className={styles.fotoIcon}>📷</span>
+                <span className={styles.fotoIcon}><CameraFill /></span>
                 <p className={styles.fotoText}>Clique para adicionar foto</p>
                 <p className={styles.fotoSub}>JPG, PNG — máx 3MB</p>
               </>
@@ -135,7 +136,7 @@ export default function CadastroTalento({ onVoltar }) {
           />
 
           <div className={styles.curriculoUpload} onClick={() => curriculoRef.current.click()}>
-            {curriculo ? `📄 ${curriculo.name}` : "📄 Anexar currículo (PDF)"}
+            {curriculo ? <FileEarmarkRichtextFill /> : <FileEarmarkRichtextFill />} {curriculo ? curriculo.name : "Anexar currículo (PDF)"}
           </div>
           <input ref={curriculoRef} type="file" accept="application/pdf"
             style={{ display: "none" }}
@@ -160,7 +161,8 @@ export default function CadastroTalento({ onVoltar }) {
                     className={`${styles.cursoBtn} ${form.curso === c ? styles.cursoBtnActive : ""}`}
                     onClick={() => setForm({ ...form, curso: c, habilidades: [] })}
                   >
-                    {c === "TI" ? "💻 TI" : "📊 ADM"}
+                    {c === "TI" ? <LaptopFill style={{ marginRight: '8px' }} /> : <SuitcaseLgFill style={{ marginRight: '8px' }} />}
+                    {c === "TI" ? "TI" : "ADM"}
                   </button>
                 ))}
               </div>
@@ -231,7 +233,17 @@ export default function CadastroTalento({ onVoltar }) {
                 className={styles.bioToggle}
                 onClick={() => setBioPreview((p) => !p)}
               >
-                {bioPreview ? "✏️ Editar" : "👁️ Preview"}
+                {bioPreview ? (
+                  <>
+                    <PencilFill className="me-2" style={{ marginRight: '8px' }} />
+                    Editar
+                  </>
+                ) : (
+                  <>
+                    <EyeFill className="me-2" style={{ marginRight: '8px' }} />
+                    Preview
+                  </>
+                )}
               </button>
             </div>
 
@@ -284,7 +296,7 @@ export default function CadastroTalento({ onVoltar }) {
           {erro && <p className={styles.erro}>{erro}</p>}
 
           <div className={styles.anonCard}>
-            🔒 Seus dados passarão por moderação antes de serem publicados.
+            <SuitcaseLgFill style={{ marginRight: '2%' }} />Seus dados passarão por moderação antes de serem publicados.
           </div>
 
           <button

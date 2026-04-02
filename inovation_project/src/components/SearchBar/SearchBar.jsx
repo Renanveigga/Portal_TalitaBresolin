@@ -10,14 +10,31 @@ const TIPO_COLORS = {
   palestra: "#1E8449",
 };
 
+const CATEGORIAS_CONFIG = [
+  { key: "avisos",   label: "📋 Avisos",            rota: "/"          },
+  { key: "livros",   label: "📚 Biblioteca",         rota: "/biblioteca"},
+  { key: "achados",  label: "🔍 Achados e Perdidos", rota: "/achados"   },
+  { key: "talentos", label: "🌟 Banco de Talentos",  rota: "/talentos"  },
+];
+
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+
 export default function SearchBar() {
-  const [query, setQuery]       = useState("");
-  const [results, setResults]   = useState(null);
-  const [loading, setLoading]   = useState(false);
-  const [aberto, setAberto]     = useState(false);
-  const navigate                = useNavigate();
-  const wrapperRef              = useRef();
-  const timerRef                = useRef();
+  const [query, setQuery]     = useState("");
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [aberto, setAberto]   = useState(false);
+  const navigate              = useNavigate();
+  const wrapperRef            = useRef();
+
+  const debouncedQuery = useDebounce(query, 400);
 
   useEffect(() => {
     const handler = (e) => {
@@ -29,29 +46,23 @@ export default function SearchBar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Debounce — espera 400ms após parar de digitar
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (debouncedQuery.trim().length < 2) {
       setResults(null);
       setAberto(false);
       return;
     }
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const res = await buscar(query);
+    setLoading(true);
+    buscar(debouncedQuery)
+      .then((res) => {
         setResults(res.data);
         setAberto(true);
-      } finally {
-        setLoading(false);
-      }
-    }, 400);
-    return () => clearTimeout(timerRef.current);
-  }, [query]);
+      })
+      .finally(() => setLoading(false));
+  }, [debouncedQuery]);
 
   const total = results
-    ? results.avisos.length + results.livros.length + results.achados.length
+    ? Object.values(results).reduce((acc, arr) => acc + arr.length, 0)
     : 0;
 
   const handleNavegar = (rota) => {
@@ -66,88 +77,106 @@ export default function SearchBar() {
         <span className={styles.icon}>🔍</span>
         <input
           className={styles.input}
-          placeholder="Buscar livros, avisos, achados..."
+          placeholder="Pesquisa universal — livros, avisos, achados, talentos..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results && setAberto(true)}
         />
         {loading && <span className={styles.spinner}>⏳</span>}
         {query && (
-          <button className={styles.clear} onClick={() => { setQuery(""); setResults(null); }}>
-            ✕
-          </button>
+          <button className={styles.clear}
+            onClick={() => { setQuery(""); setResults(null); }}>✕</button>
         )}
       </div>
 
       {aberto && results && (
         <div className={styles.dropdown}>
+
           {total === 0 ? (
-            <p className={styles.empty}>Nenhum resultado para "{query}"</p>
+            <div className={styles.emptyState}>
+              <p className={styles.emptyIcon}>🔍</p>
+              <p className={styles.emptyText}>Nenhum resultado para "{query}"</p>
+            </div>
           ) : (
             <>
 
-              {results.avisos.length > 0 && (
-                <div className={styles.group}>
-                  <p className={styles.groupLabel}>📋 Avisos</p>
-                  {results.avisos.map((a) => (
-                    <button
-                      key={a.id}
-                      className={styles.resultItem}
-                      onClick={() => handleNavegar("/")}
-                    >
-                      <span
-                        className={styles.badge}
-                        style={{ background: TIPO_COLORS[a.tipo] ?? "#888" }}
-                      >
-                        {a.tipo}
-                      </span>
-                      <span className={styles.resultTitle}>{a.titulo}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className={styles.dropdownHeader}>
+                <span className={styles.totalLabel}>{total} resultado{total !== 1 ? "s" : ""} encontrado{total !== 1 ? "s" : ""}</span>
+                <span className={styles.queryLabel}>"{query}"</span>
+              </div>
 
-              {results.livros.length > 0 && (
-                <div className={styles.group}>
-                  <p className={styles.groupLabel}>📚 Biblioteca</p>
-                  {results.livros.map((l) => (
-                    <button
-                      key={l.id}
-                      className={styles.resultItem}
-                      onClick={() => handleNavegar("/biblioteca")}
-                    >
-                      <span className={`${styles.badge} ${l.disponivel ? styles.disp : styles.emp}`}>
-                        {l.disponivel ? "Disponível" : "Emprestado"}
-                      </span>
-                      <div className={styles.resultInfo}>
-                        <span className={styles.resultTitle}>{l.titulo}</span>
-                        <span className={styles.resultSub}>{l.autor}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+              {CATEGORIAS_CONFIG.map(({ key, label, rota }) => {
+                const items = results[key];
+                if (!items?.length) return null;
+                return (
+                  <div key={key} className={styles.group}>
+                    <div className={styles.groupHeader}>
+                      <span className={styles.groupLabel}>{label}</span>
+                      <button className={styles.groupVerTodos}
+                        onClick={() => handleNavegar(rota)}>
+                        Ver todos →
+                      </button>
+                    </div>
 
-              {results.achados.length > 0 && (
-                <div className={styles.group}>
-                  <p className={styles.groupLabel}>🔍 Achados e Perdidos</p>
-                  {results.achados.map((a) => (
-                    <button
-                      key={a.id}
-                      className={styles.resultItem}
-                      onClick={() => handleNavegar("/achados")}
-                    >
-                      <span className={`${styles.badge} ${a.retirado ? styles.emp : styles.disp}`}>
-                        {a.retirado ? "Retirado" : "Aguardando"}
-                      </span>
-                      <div className={styles.resultInfo}>
-                        <span className={styles.resultTitle}>{a.descricao}</span>
-                        <span className={styles.resultSub}>📍 {a.sala}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                    {items.map((item) => (
+                      <button key={item.id} className={styles.resultItem}
+                        onClick={() => handleNavegar(rota)}>
+
+                        {key === "avisos" && (
+                          <>
+                            <span className={styles.badge}
+                              style={{ background: TIPO_COLORS[item.tipo] ?? "#888" }}>
+                              {item.tipo}
+                            </span>
+                            <div className={styles.resultInfo}>
+                              <span className={styles.resultTitle}>{item.titulo}</span>
+                              <span className={styles.resultSub}>📅 {item.data?.slice(0, 10)}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {key === "livros" && (
+                          <>
+                            <span className={`${styles.badge} ${Boolean(item.disponivel) ? styles.disp : styles.emp}`}>
+                              {Boolean(item.disponivel) ? "Disponível" : "Emprestado"}
+                            </span>
+                            <div className={styles.resultInfo}>
+                              <span className={styles.resultTitle}>{item.titulo}</span>
+                              <span className={styles.resultSub}>{item.autor} · {item.categoria}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {key === "achados" && (
+                          <>
+                            <span className={`${styles.badge} ${item.retirado ? styles.emp : styles.disp}`}>
+                              {item.retirado ? "Retirado" : "Aguardando"}
+                            </span>
+                            <div className={styles.resultInfo}>
+                              <span className={styles.resultTitle}>{item.descricao}</span>
+                              <span className={styles.resultSub}>📍 {item.sala}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {key === "talentos" && (
+                          <>
+                            <span className={`${styles.badge} ${item.curso === "TI" ? styles.badgeTI : styles.badgeADM}`}>
+                              {item.curso}
+                            </span>
+                            <div className={styles.resultInfo}>
+                              <span className={styles.resultTitle}>{item.nome}</span>
+                              <span className={styles.resultSub}>{item.habilidades?.split(",").slice(0,2).join(", ")}</span>
+                            </div>
+                          </>
+                        )}
+
+                        <span className={styles.arrow}>→</span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })}
             </>
           )}
         </div>

@@ -719,3 +719,18 @@
   color: var(--color-text-dark);
   margin: 12px 0 6px;
 }
+
+.filtroSelect {
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text-dark);
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filtroSelect:focus { border-color: var(--color-primary-light); }

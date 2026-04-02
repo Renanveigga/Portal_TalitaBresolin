@@ -1,0 +1,119 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary-light);
+}
+ 
+.cardLeft { flex-shrink: 0; }
+
+.iconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.foto {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+
+.avatarBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.avatarTI  { background: linear-gradient(135deg, #1B4F72, #2E86C1); }
+.avatarADM { background: linear-gradient(135deg, #7D6608, #F39C12); }
+ 
+.cardContent { flex: 1; min-width: 0; }
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+.badgeDisp    { background: var(--color-success); }
+.badgeEmp     { background: var(--color-text-light); }
+.badgePendente { background: #F39C12; }
+.badgeTI      { background: #2E86C1; }
+.badgeADM     { background: #F39C12; }
+
+.time {
+  font-size: 11px;
+  color: var(--color-text-light);
+  margin-left: auto;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardDesc {
+  font-size: 12px;
+  color: var(--color-text-mid);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.cardSub {
+  font-size: 11px;
+  color: var(--color-text-light);
+}
+ 
+.cardArrow {
+  font-size: 14px;
+  color: var(--color-text-light);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.card:hover .cardArrow {
+  transform: translateX(3px);
+  color: var(--color-primary-light);
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./Talentos.module.css";
 import { getTalent } from "../../services/talentosService";
 import CadastroTalento from "./CadastroTalento";
+import { LaptopFill, BarChartLine, StarFill, Search } from "react-bootstrap-icons";
 
 const API_URL = "http://localhost:3000";
 
@@ -33,10 +34,13 @@ export default function Talentos() {
 
   useEffect(() => { carregar(); }, []);
 
+  const [ordem, setOrdem] = useState("recente");
+
   const handleFiltrar = () => {
     const filtros = {};
     if (filtroCurso) filtros.curso = filtroCurso;
     if (filtroHab) filtros.habilidade = filtroHab;
+    if (ordem) filtros.ordem = ordem;
     carregar(filtros);
   };
 
@@ -55,7 +59,7 @@ export default function Talentos() {
 
       <div className={styles.header}>
         <div>
-          <h2 className="page-title">🌟 Banco de Talentos</h2>
+          <h2 className="page-title"><StarFill /> Banco de Talentos</h2>
           <p className="page-subtitle">
             Conectando alunos do colégio ao mercado de trabalho.
           </p>
@@ -77,7 +81,17 @@ export default function Talentos() {
                   className={`${styles.filtroBtn} ${filtroCurso === c ? styles.filtroBtnActive : ""}`}
                   onClick={() => setFiltroCurso(c)}
                 >
-                  {c === "" ? "Todos" : c === "TI" ? "💻 TI" : "📊 ADM"}
+                  {c === "" ? (
+                    "Todos"
+                  ) : c === "TI" ? (
+                    <>
+                      <LaptopFill className="me-1" /> TI
+                    </>
+                  ) : (
+                    <>
+                      <BarChartLine className="me-1" /> ADM
+                    </>
+                  )}
                 </button>
               ))}
             </div>
@@ -94,11 +108,16 @@ export default function Talentos() {
             />
           </div>
 
-          <div className={styles.filtroAcoes}>
-            <button className={styles.btnFiltrar} onClick={handleFiltrar}>Buscar</button>
-            {(filtroCurso || filtroHab) && (
-              <button className={styles.btnLimpar} onClick={handleLimpar}>✕ Limpar</button>
-            )}
+          <div className={styles.filtroGroup}>
+            <label className={styles.filtroLabel}>Ordenar por</label>
+            <select
+              className={styles.filtroSelect}
+              value={ordem}
+              onChange={(e) => setOrdem(e.target.value)}
+            >
+              <option value="recente">Mais recentes</option>
+              <option value="relevancia">Mais completos</option>
+            </select>
           </div>
 
         </div>
@@ -123,7 +142,7 @@ export default function Talentos() {
 
       {talentos.length === 0 && !loading ? (
         <div className={styles.empty}>
-          <p className={styles.emptyIcon}>🔍</p>
+          <p className={styles.emptyIcon}><Search /></p>
           <p className={styles.emptyText}>Nenhum talento encontrado com esses filtros.</p>
         </div>
       ) : (
@@ -176,7 +195,6 @@ export default function Talentos() {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.modalClose} onClick={() => setTalentoAberto(null)}>✕</button>
 
-            {/* Header colorido */}
             <div className={`${styles.modalHeader} ${talentoAberto.curso === "TI" ? styles.headerTI : styles.headerADM}`}>
               <div className={styles.modalAvatar}>
                 {talentoAberto.foto_url
@@ -190,7 +208,6 @@ export default function Talentos() {
               <p className={styles.modalNome}>{talentoAberto.nome}</p>
               <p className={styles.modalInfo}>{talentoAberto.curso} · {talentoAberto.ano} ano</p>
 
-              {/* Bio renderizada */}
               {talentoAberto.bio_html && (
                 <div className={styles.modalSection}>
                   <p className={styles.modalLabel}>Sobre</p>
@@ -201,7 +218,6 @@ export default function Talentos() {
                 </div>
               )}
 
-              {/* Habilidades */}
               <div className={styles.modalSection}>
                 <p className={styles.modalLabel}>Habilidades</p>
                 <div className={styles.habilidades}>

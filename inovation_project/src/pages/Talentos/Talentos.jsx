@@ -6,6 +6,7 @@ import {
 import styles from "./Talentos.module.css";
 import { getTalentos } from "../../services/talentosService";
 import CadastroTalento from "./CadastroTalento";
+import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 
 const API_URL = "http://localhost:3000";
 
@@ -388,13 +389,18 @@ export default function Talentos() {
       </div>
  
       <p className={styles.contador}>
-        {loading
-          ? "Buscando talentos..."
-          : `${listaTalentos.length} talento${listaTalentos.length !== 1 ? "s" : ""} encontrado${listaTalentos.length !== 1 ? "s" : ""}`
+        {loading 
+          ? "Buscando talentos..." 
+          : `${listaTalentos.length} talento(s) encontrado(s)`
         }
       </p>
  
-      {listaTalentos.length === 0 && !loading ? (
+      {loading ? (
+        <div className={styles.feedList}>
+ 
+          {[1, 2, 3].map((n) => <SkeletonCard key={n} />)}
+        </div>
+      ) : listaTalentos.length === 0 ? (
         <div className={styles.empty}>
           <p className={styles.emptyIcon}>🔍</p>
           <p className={styles.emptyText}>Nenhum talento encontrado com esses filtros.</p>

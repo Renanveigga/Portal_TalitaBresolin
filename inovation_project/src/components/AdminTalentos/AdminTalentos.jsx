@@ -13,19 +13,21 @@ export default function AdminTalentos() {
   const [talentos, setTalentos] = useState([]);
   const [filtro, setFiltro]     = useState("pendente");
  
-const carregar = async () => {
-  try {
-    const r = await getTalentosAdmin();
- 
-    const lista = r.data?.dados || r.data || [];
- 
-    setTalentos(Array.isArray(lista) ? lista : []);
-  } catch (err) {
-    console.error("Erro ao carregar talentos:", err);
-    setTalentos([]); 
-  }
-};
+  useEffect(() => {
+    carregar();
+  }, []);  
 
+  const carregar = async () => {
+    try {
+      const r = await getTalentosAdmin();
+      const lista = r.data?.dados || r.data || [];
+      setTalentos(Array.isArray(lista) ? lista : []);
+    } catch (err) {
+      console.error("Erro ao carregar talentos:", err);
+      setTalentos([]); 
+    }
+  };
+ 
   const handleStatus = async (id, status) => {
     await updateStatus(id, status);
     carregar();

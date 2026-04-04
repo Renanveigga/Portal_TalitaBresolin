@@ -78,8 +78,12 @@ export default function CadastroTalento({ onVoltar }) {
       formData.append("instagram", form.instagram);
       formData.append("email", form.email);
       formData.append("bio", form.bio);
+ 
+      formData.append("status", "pendente"); 
+
       if (foto) formData.append("foto", foto);
       if (curriculo) formData.append("curriculo", curriculo);
+      
       await createTalento(formData);
       setEnviado(true);
     } catch {

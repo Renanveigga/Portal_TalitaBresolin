@@ -1,8 +1,9 @@
 import { badRequest } from "../utils/response.js";
+import xss from "xss";
  
 export const validate = (schema) => (req, res, next) => {
   const erros = [];
-  const fonte = { ...req.body, ...req.query };
+  const fonte = req.method === "GET" ? req.query : req.body;
 
   for (const [campo, regras] of Object.entries(schema)) {
     const valor = fonte[campo];
@@ -53,5 +54,5 @@ export const validateId = (req, res, next) => {
  
 export const sanitize = (valor) => {
   if (typeof valor !== "string") return valor;
-  return valor.trim().replace(/[<>"']/g, "");
+  return xss(valor);
 };

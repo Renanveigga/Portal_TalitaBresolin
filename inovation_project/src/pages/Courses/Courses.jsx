@@ -12,13 +12,18 @@ export default function Courses() {
   useEffect(() => {
     getCursos()
       .then((res) => {
-        setCursos(res.data);
-        setActiveId(res.data[0]?.id ?? null);
+ 
+        const listaCursos = res.data?.dados || res.data || [];
+        setCursos(listaCursos);
+ 
+        if (listaCursos.length > 0) {
+          setActiveId(listaCursos[0].id);
+        }
       })
       .catch(() => setErro("Erro ao carregar cursos."))
       .finally(() => setLoading(false));
   }, []);
-
+ 
   const curso = cursos.find((c) => c.id === activeId);
 
   return (
@@ -32,14 +37,15 @@ export default function Courses() {
       {erro    && <p style={{ color: "red" }}>{erro}</p>}
 
       <div className={styles.tabs}>
-        {cursos.map((c) => (
+ 
+        {cursos?.map((c) => (
           <button
             key={c.id}
             className={`${styles.tabBtn} ${activeId === c.id ? styles.active : ""}`}
             style={activeId === c.id ? { background: c.cor, borderColor: c.cor } : {}}
             onClick={() => setActiveId(c.id)}
           >
-            {c.sigla} — {c.nome.split(" ").slice(2).join(" ")}
+            {c.sigla} — {(c.nome || "").split(" ").slice(2).join(" ")}
           </button>
         ))}
       </div>
@@ -54,11 +60,16 @@ export default function Courses() {
 
           <h4 className={styles.docenteTitle}>Corpo Docente</h4>
           <div className={styles.docenteGrid}>
-            {curso.professores.map((prof, i) => (
+ 
+            {(curso.professores || []).map((prof, i) => (
               <ProfessorCard key={i} professor={prof} cor={curso.cor} />
             ))}
           </div>
         </>
+      )}
+      
+      {!loading && cursos.length === 0 && !erro && (
+        <p className="page-subtitle">Nenhum curso disponível no momento.</p>
       )}
     </div>
   );

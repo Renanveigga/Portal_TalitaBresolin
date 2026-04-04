@@ -2,9 +2,13 @@ import db from "../config/db.js";
 import { marked } from "marked";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
+import { ok, created, notFound, badRequest } from "../utils/response.js";
+import { sanitize } from "../middlewares/validate.js";
 
-const window  = new JSDOM("").window;
-const purify  = DOMPurify(window);
+const { window } = new JSDOM("");
+const purify     = DOMPurify(window);
+ 
+marked.setOptions({ gfm: true, breaks: true });
 
 function renderBio(bio) {
   if (!bio) return null;
@@ -15,90 +19,115 @@ function renderBio(bio) {
   });
 }
 
-export const getTalentos = async (req, res) => {
+export const getTalentos = async (req, res, next) => {
   try {
-    const { curso, habilidade } = req.query;
-    let query  = "SELECT * FROM talentos WHERE status = 'aprovado'";
+    const { curso, habilidade, ordem } = req.query;
     const params = [];
+    let query = "SELECT * FROM talentos WHERE status = 'aprovado'";
 
-    if (curso) {
+    if (curso && ["TI", "ADM"].includes(curso)) {
       query += " AND curso = ?";
       params.push(curso);
     }
     if (habilidade) {
+ 
       query += " AND habilidades LIKE ?";
-      params.push(`%${habilidade}%`);
+      params.push(`%${String(habilidade).slice(0, 100)}%`);
     }
 
-    query += " ORDER BY criado_em DESC";
+    if (ordem === "relevancia") {
+      query += `
+        ORDER BY (
+          CASE WHEN curriculo_url IS NOT NULL THEN 3 ELSE 0 END +
+          CASE WHEN linkedin IS NOT NULL AND linkedin != '' THEN 2 ELSE 0 END +
+          CASE WHEN github IS NOT NULL AND github != '' THEN 2 ELSE 0 END +
+          CASE WHEN bio IS NOT NULL AND bio != '' THEN 1 ELSE 0 END +
+          CASE WHEN foto_url IS NOT NULL THEN 1 ELSE 0 END
+        ) DESC, criado_em DESC
+      `;
+    } else {
+      query += " ORDER BY criado_em DESC";
+    }
+
     const [rows] = await db.query(query, params);
-
-    const talentos = rows.map((t) => ({
-      ...t,
-      bio_html: renderBio(t.bio),
-    }));
-
-    res.json(talentos);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar talentos", detalhe: error.message });
+    const talentos = rows.map((t) => ({ ...t, bio_html: renderBio(t.bio) }));
+    return ok(res, talentos);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const getTalentosAdmin = async (req, res) => {
+export const getTalentosAdmin = async (req, res, next) => {
   try {
     const [rows] = await db.query("SELECT * FROM talentos ORDER BY criado_em DESC");
     const talentos = rows.map((t) => ({ ...t, bio_html: renderBio(t.bio) }));
-    res.json(talentos);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar talentos", detalhe: error.message });
+    return ok(res, talentos);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const createTalento = async (req, res) => {
+export const createTalento = async (req, res, next) => {
   try {
-    const { nome, curso, ano, habilidades, linkedin, github, email, instagram, bio } = req.body;
+    const nome        = sanitize(req.body.nome);
+    const curso       = sanitize(req.body.curso);
+    const ano         = sanitize(req.body.ano);
+    const habilidades = sanitize(req.body.habilidades);
+    const linkedin    = req.body.linkedin   ? sanitize(req.body.linkedin)   : null;
+    const github      = req.body.github     ? sanitize(req.body.github)     : null;
+    const instagram   = req.body.instagram  ? sanitize(req.body.instagram)  : null;
+    const email       = req.body.email      ? sanitize(req.body.email)      : null;
+ 
+    const bio = req.body.bio ? String(req.body.bio).slice(0, 5000) : null;
 
-    if (!nome || !curso || !ano || !habilidades) {
-      return res.status(400).json({ erro: "Campos obrigatórios faltando." });
-    }
-
-    const foto_url      = req.files?.foto?.[0]      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}`   : null;
-    const curriculo_url = req.files?.curriculo?.[0]  ? `/uploads/curriculos/${req.files.curriculo[0].filename}` : null;
+    const foto_url      = req.files?.foto?.[0]
+      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}` : null;
+    const curriculo_url = req.files?.curriculo?.[0]
+      ? `/uploads/curriculos/${req.files.curriculo[0].filename}` : null;
 
     const [result] = await db.query(
       `INSERT INTO talentos
         (nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [nome, curso, ano, habilidades,
-       linkedin ?? null, github ?? null,
-       email ?? null, instagram ?? null,
-       bio ?? null,
-       foto_url, curriculo_url]
+      [nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url]
     );
 
-    res.status(201).json({ mensagem: "Perfil enviado para aprovação!", id: result.insertId });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao cadastrar talento", detalhe: error.message });
+    return created(res, { id: result.insertId, mensagem: "Perfil enviado para aprovação." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const updateStatus = async (req, res) => {
+export const updateStatus = async (req, res, next) => {
   try {
     const { id }     = req.params;
     const { status } = req.body;
+
+    const validos = ["aprovado", "reprovado", "pendente"];
+    if (!validos.includes(status)) {
+      return badRequest(res, `Status inválido. Use: ${validos.join(", ")}.`);
+    }
+
+    const [check] = await db.query("SELECT id FROM talentos WHERE id = ?", [id]);
+    if (check.length === 0) return notFound(res, "Talento não encontrado.");
+
     await db.query("UPDATE talentos SET status = ? WHERE id = ?", [status, id]);
-    res.json({ mensagem: "Status atualizado!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao atualizar status", detalhe: error.message });
+    return ok(res, { mensagem: "Status atualizado com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const deleteTalento = async (req, res) => {
+export const deleteTalento = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const [check] = await db.query("SELECT id FROM talentos WHERE id = ?", [id]);
+
+    if (check.length === 0) return notFound(res, "Talento não encontrado.");
+
     await db.query("DELETE FROM talentos WHERE id = ?", [id]);
-    res.json({ mensagem: "Perfil removido!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao remover talento", detalhe: error.message });
+    return ok(res, { mensagem: "Perfil removido com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };

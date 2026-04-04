@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trophy, Award, Calendar2, AwardFill } from 'react-bootstrap-icons';
+import { Trophy, Calendar2 } from 'react-bootstrap-icons';
 import styles from "./Esportes.module.css";
 import { getEsportes } from "../../services/esportesService";
 
@@ -14,7 +14,7 @@ const MEDALHA_CONFIG = {
 
 const MODALIDADE_ICONS = {
   "Futsal":    "⚽",
-  "Vôlei":    "🏐",
+  "Vôlei":     "🏐",
   "Atletismo": "🏃",
   "Natação":   "🏊",
   "Basquete":  "🏀",
@@ -28,17 +28,23 @@ export default function Esportes() {
 
   useEffect(() => {
     getEsportes()
-      .then((r) => setEsportes(r.data))
+      .then((r) => {
+ 
+        const listaEsportes = r.data?.dados || r.data || [];
+        setEsportes(listaEsportes);
+      })
+      .catch(err => console.error("Erro ao carregar esportes:", err))
       .finally(() => setLoading(false));
   }, []);
+ 
+  const listaSegura = Array.isArray(esportes) ? esportes : [];
 
   const filtered = filtroMed
-    ? esportes.filter((e) => e.medalha === filtroMed)
-    : esportes;
+    ? listaSegura.filter((e) => e.medalha === filtroMed)
+    : listaSegura;
 
   return (
     <div>
-
       <div className={styles.pageHeader}>
         <div>
           <h2 className="page-title">🏆 Esportes</h2>
@@ -49,19 +55,19 @@ export default function Esportes() {
         <div className={styles.headerStats}>
           <div className={styles.headerStat}>
             <span className={styles.headerStatNum}>
-              {esportes.filter((e) => e.medalha === "ouro").length}
+              {listaSegura.filter((e) => e.medalha === "ouro").length}
             </span>
             <span className={styles.headerStatLabel}>🥇 Ouros</span>
           </div>
           <div className={styles.headerStat}>
             <span className={styles.headerStatNum}>
-              {esportes.filter((e) => e.medalha === "prata").length}
+              {listaSegura.filter((e) => e.medalha === "prata").length}
             </span>
             <span className={styles.headerStatLabel}>🥈 Pratas</span>
           </div>
           <div className={styles.headerStat}>
             <span className={styles.headerStatNum}>
-              {esportes.filter((e) => e.medalha === "bronze").length}
+              {listaSegura.filter((e) => e.medalha === "bronze").length}
             </span>
             <span className={styles.headerStatLabel}>🥉 Bronzes</span>
           </div>
@@ -70,7 +76,7 @@ export default function Esportes() {
 
       <div className={styles.filtros}>
         {[
-          { value: "",             label: "Todos"          },
+          { value: "",             label: "Todos"           },
           { value: "ouro",         label: "🥇 Ouro"        },
           { value: "prata",        label: "🥈 Prata"       },
           { value: "bronze",       label: "🥉 Bronze"      },
@@ -94,7 +100,6 @@ export default function Esportes() {
           const icon = MODALIDADE_ICONS[e.modalidade] ?? "🏅";
           return (
             <div key={e.id} className={styles.card}>
-
               <div className={styles.cardImg}>
                 {e.foto_url ? (
                   <img src={`${API_URL}${e.foto_url}`} alt={e.titulo} className={styles.foto} />
@@ -116,13 +121,12 @@ export default function Esportes() {
                   </span>
                   <span className={styles.data}>
                     <Calendar2 size={11} />
-                    {e.data_evento?.slice(0, 10)}
+                    {e.data_evento?.slice(0, 10) || "Data indefinida"}
                   </span>
                 </div>
                 <p className={styles.cardTitulo}>{e.titulo}</p>
                 {e.resumo && <p className={styles.cardResumo}>{e.resumo}</p>}
               </div>
-
             </div>
           );
         })}
@@ -130,7 +134,7 @@ export default function Esportes() {
 
       {filtered.length === 0 && !loading && (
         <div className={styles.empty}>
-          <Trophy size={40} color="var(--color-text-light)" />
+          <Trophy size={40} color="#ccc" />
           <p>Nenhum evento encontrado.</p>
         </div>
       )}

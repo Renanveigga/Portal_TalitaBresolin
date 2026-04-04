@@ -1,59 +1,73 @@
 import db from "../config/db.js";
+import { ok, created, notFound } from "../utils/response.js";
+import { sanitize } from "../middlewares/validate.js";
 
-export const getLivros = async (req, res) => {
+export const getLivros = async (req, res, next) => {
   try {
     const [rows] = await db.query("SELECT * FROM livros ORDER BY titulo ASC");
-    res.json(rows);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar livros", detalhe: error.message });
+    return ok(res, rows);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const getLivroById = async (req, res) => {
+export const getLivroById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const [rows] = await db.query("SELECT * FROM livros WHERE id = ?", [id]);
 
-    if (rows.length === 0) {
-      return res.status(404).json({ erro: "Livro não encontrado" });
-    }
-
-    res.json(rows[0]);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar livro", detalhe: error.message });
+    if (rows.length === 0) return notFound(res, "Livro não encontrado.");
+    return ok(res, rows[0]);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const createLivro = async (req, res) => {
+export const createLivro = async (req, res, next) => {
   try {
-    const { titulo, autor, categoria, disponivel } = req.body;
+    const titulo     = sanitize(req.body.titulo);
+    const autor      = sanitize(req.body.autor);
+    const categoria  = sanitize(req.body.categoria);
+  
+    const disponivel = req.body.disponivel === true || req.body.disponivel === "true" ? 1 : 0;
+
     const [result] = await db.query(
       "INSERT INTO livros (titulo, autor, categoria, disponivel) VALUES (?, ?, ?, ?)",
-      [titulo, autor, categoria, disponivel ?? true]
+      [titulo, autor, categoria, disponivel]
     );
-    res.status(201).json({ mensagem: "Livro cadastrado!", id: result.insertId });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao cadastrar livro", detalhe: error.message });
+
+    return created(res, { id: result.insertId, mensagem: "Livro cadastrado com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const updateLivro = async (req, res) => {
+export const updateLivro = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { disponivel } = req.body;
+    const [check] = await db.query("SELECT id FROM livros WHERE id = ?", [id]);
+
+    if (check.length === 0) return notFound(res, "Livro não encontrado.");
+
+    const disponivel = req.body.disponivel === true || req.body.disponivel === "true" ? 1 : 0;
     await db.query("UPDATE livros SET disponivel = ? WHERE id = ?", [disponivel, id]);
-    res.json({ mensagem: "Livro atualizado!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao atualizar livro", detalhe: error.message });
+
+    return ok(res, { mensagem: "Disponibilidade atualizada com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const deleteLivro = async (req, res) => {
+export const deleteLivro = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const [check] = await db.query("SELECT id FROM livros WHERE id = ?", [id]);
+
+    if (check.length === 0) return notFound(res, "Livro não encontrado.");
+
     await db.query("DELETE FROM livros WHERE id = ?", [id]);
-    res.json({ mensagem: "Livro removido!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao remover livro", detalhe: error.message });
+    return ok(res, { mensagem: "Livro removido com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };

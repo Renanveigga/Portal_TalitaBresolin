@@ -12,11 +12,18 @@ export default function Lost() {
 
   useEffect(() => {
     getAchados()
-      .then((res) => setAchados(res.data))
+      .then((res) => {
+ 
+        const listaAchados = res.data?.dados || res.data || [];
+        setAchados(listaAchados);
+      })
+      .catch(err => console.error("Erro ao carregar achados:", err))
       .finally(() => setLoading(false));
   }, []);
+ 
+  const listaSegura = Array.isArray(achados) ? achados : [];
 
-  const filtered = achados.filter((a) => {
+  const filtered = listaSegura.filter((a) => {
     if (filtro === "pendente")  return !a.retirado;
     if (filtro === "retirado")  return a.retirado;
     return true;
@@ -34,13 +41,13 @@ export default function Lost() {
         <div className={styles.headerStats}>
           <div className={styles.headerStat}>
             <span className={styles.headerStatNum}>
-              {achados.filter((a) => !a.retirado).length}
+              {listaSegura.filter((a) => !a.retirado).length}
             </span>
             <span className={styles.headerStatLabel}>Aguardando</span>
           </div>
           <div className={styles.headerStat}>
             <span className={styles.headerStatNum}>
-              {achados.filter((a) => a.retirado).length}
+              {listaSegura.filter((a) => a.retirado).length}
             </span>
             <span className={styles.headerStatLabel}>Retirados</span>
           </div>
@@ -95,11 +102,12 @@ export default function Lost() {
               <div className={styles.cardMeta}>
                 <span className={styles.metaItem}>
                   <GeoAlt size={11} />
-                  {item.sala}
+                  {item.sala || "Não informada"}
                 </span>
                 <span className={styles.metaItem}>
                   <Clock size={11} />
-                  {item.encontrado_em?.slice(0, 10) ?? item.criado_em?.slice(0, 10)}
+ 
+                  {(item.encontrado_em || item.criado_em || "").slice(0, 10)}
                 </span>
               </div>
             </div>

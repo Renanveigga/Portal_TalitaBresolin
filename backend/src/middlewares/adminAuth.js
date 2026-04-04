@@ -1,22 +1,28 @@
 import jwt from "jsonwebtoken";
-import { protegerAdmin } from "../middlewares/adminAuth.js";
-
+import { unauthorized, forbidden } from "../utils/response.js";
+ 
 export function protegerAdmin(req, res, next) {
-  const token = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ erro: "Sem token" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return unauthorized(res, "Token não fornecido ou formato inválido. Use: Bearer <token>");
   }
+
+  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (!decoded.admin) {
-      return res.status(403).json({ erro: "Acesso negado" });
+      return forbidden(res, "Acesso negado: privilégios insuficientes");
     }
 
+    req.admin = decoded;
     next();
-  } catch {
-    return res.status(403).json({ erro: "Token inválido" });
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return unauthorized(res, "Token expirado. Faça login novamente.");
+    }
+    return unauthorized(res, "Token inválido.");
   }
 }

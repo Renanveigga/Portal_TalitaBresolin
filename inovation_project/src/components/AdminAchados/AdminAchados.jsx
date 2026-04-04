@@ -2,15 +2,28 @@ import { useState, useEffect, useRef } from "react";
 import { getAchados, createAchado, updateAchado, deleteAchado } from "../../services/achadosService";
 import styles from "./AdminAchados.module.css";
 
+const API_URL = "http://localhost:3000";
+
 export default function AdminAchados() {
   const [achados, setAchados] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [descricao, setDescricao] = useState("");
   const [sala, setSala] = useState("");
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
   const fileRef = useRef();
 
-  const carregar = () => getAchados().then((r) => setAchados(r.data));
+  const carregar = () => {
+    setLoading(true);
+    getAchados()
+      .then((r) => {
+ 
+        const listaAchados = r.data?.dados || r.data || [];
+        setAchados(listaAchados);
+      })
+      .catch(err => console.error("Erro ao carregar achados:", err))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => { carregar(); }, []);
 
@@ -22,36 +35,56 @@ export default function AdminAchados() {
   };
 
   const handleCreate = async () => {
-    if (!descricao || !sala) return;
+    if (!descricao || !sala) {
+      alert("Preencha descrição e sala.");
+      return;
+    }
 
-    const formData = new FormData();
-    formData.append("descricao", descricao);
-    formData.append("sala", sala);
-    if (foto) formData.append("foto", foto);
+    try {
+      const formData = new FormData();
+      formData.append("descricao", descricao);
+      formData.append("sala", sala);
+      if (foto) formData.append("foto", foto);
 
-    await createAchado(formData);
-    setDescricao("");
-    setSala("");
-    setFoto(null);
-    setPreview(null);
-    fileRef.current.value = "";
-    carregar();
+      await createAchado(formData);
+ 
+      setDescricao("");
+      setSala("");
+      setFoto(null);
+      setPreview(null);
+      if (fileRef.current) fileRef.current.value = "";
+      
+      carregar();
+    } catch (err) {
+      alert("Erro ao cadastrar item.");
+    }
   };
 
-  const handleRetirado = async (id, retirado) => {
-    await updateAchado(id, { retirado: !retirado });
-    carregar();
+  const handleRetirado = async (id, retiradoAtual) => {
+    try {
+ 
+      await updateAchado(id, { retirado: !Boolean(retiradoAtual) });
+      carregar();
+    } catch (err) {
+      alert("Erro ao atualizar status.");
+    }
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Remover este item?")) return;
-    await deleteAchado(id);
-    carregar();
+    try {
+      await deleteAchado(id);
+      carregar();
+    } catch (err) {
+      alert("Erro ao excluir item.");
+    }
   };
+ 
+  const listaSegura = Array.isArray(achados) ? achados : [];
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>🔍 Achados e Perdidos</h3>
+      <h3 className={styles.sectionTitle}>🔍 Gerenciar Achados e Perdidos</h3>
 
       <div className={styles.formCard}>
         <p className={styles.formLabel}>Cadastrar novo item</p>
@@ -64,7 +97,7 @@ export default function AdminAchados() {
           />
           <input
             className={styles.input}
-            placeholder="Sala (ex: Coord. 01) *"
+            placeholder="Sala onde se encontra *"
             value={sala}
             onChange={(e) => setSala(e.target.value)}
           />
@@ -83,7 +116,10 @@ export default function AdminAchados() {
             {preview ? "🖼️ Trocar foto" : "📷 Adicionar foto (opcional)"}
           </label>
           {preview && (
-            <img src={preview} alt="preview" className={styles.preview} />
+            <div className={styles.previewContainer}>
+               <img src={preview} alt="preview" className={styles.preview} />
+               <button className={styles.btnRemoveFoto} onClick={() => {setFoto(null); setPreview(null); fileRef.current.value="";}}>Remover</button>
+            </div>
           )}
         </div>
 
@@ -93,13 +129,18 @@ export default function AdminAchados() {
       </div>
 
       <div className={styles.list}>
-        {achados.map((a) => (
-          <div key={a.id} className={styles.item}>
+        {loading && <p>Carregando itens...</p>}
+        
+        {!loading && listaSegura.length === 0 && (
+          <p className={styles.empty}>Nenhum item registrado.</p>
+        )}
 
+        {listaSegura.map((a) => (
+          <div key={a.id} className={`${styles.item} ${a.retirado ? styles.itemRetirado : ""}`}>
             <div className={styles.itemFoto}>
               {a.foto_url ? (
                 <img
-                  src={`http://localhost:3000${a.foto_url}`}
+                  src={`${API_URL}${a.foto_url}`}
                   alt={a.descricao}
                   className={styles.foto}
                 />
@@ -111,6 +152,7 @@ export default function AdminAchados() {
             <div className={styles.itemInfo}>
               <p className={styles.itemTitle}>{a.descricao}</p>
               <p className={styles.itemMeta}>📍 {a.sala}</p>
+              {a.retirado && <span className={styles.badgeRetirado}>ITEM ENTREGUE</span>}
             </div>
 
             <div className={styles.itemActions}>
@@ -118,13 +160,12 @@ export default function AdminAchados() {
                 className={`${styles.btnStatus} ${a.retirado ? styles.retirado : styles.pendente}`}
                 onClick={() => handleRetirado(a.id, a.retirado)}
               >
-                {a.retirado ? "Retirado" : "Marcar retirado"}
+                {a.retirado ? "Reabrir" : "Marcar retirado"}
               </button>
               <button className={styles.btnDelete} onClick={() => handleDelete(a.id)}>
                 Excluir
               </button>
             </div>
-
           </div>
         ))}
       </div>

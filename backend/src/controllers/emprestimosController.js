@@ -1,62 +1,82 @@
 import db from "../config/db.js";
+import { ok, created, notFound, badRequest } from "../utils/response.js";
+import { sanitize } from "../middlewares/validate.js";
 
-export const getEmprestimos = async (req, res) => {
+export const getEmprestimos = async (req, res, next) => {
   try {
     const [rows] = await db.query(`
-      SELECT e.*, l.titulo as livro_titulo, l.autor as livro_autor
+      SELECT e.*, l.titulo AS livro_titulo, l.autor AS livro_autor
       FROM emprestimos e
       JOIN livros l ON e.livro_id = l.id
       ORDER BY e.data_emprestimo DESC
     `);
-    res.json(rows);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar empréstimos", detalhe: error.message });
+    return ok(res, rows);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const createEmprestimo = async (req, res) => {
+export const createEmprestimo = async (req, res, next) => {
   try {
-    const { livro_id, nome_aluno, turma, data_devolucao } = req.body;
+    const livro_id      = Number(req.body.livro_id);
+    const nome_aluno    = sanitize(req.body.nome_aluno);
+    const turma         = req.body.turma ? sanitize(req.body.turma) : null;
+    const data_devolucao = req.body.data_devolucao || null;
+ 
+    const [[livro]] = await db.query(
+      "SELECT id, disponivel FROM livros WHERE id = ?", [livro_id]
+    );
+
+    if (!livro) return notFound(res, "Livro não encontrado.");
+    if (!livro.disponivel) {
+      return badRequest(res, "Este livro já está emprestado e não está disponível.");
+    }
 
     await db.query(
       "INSERT INTO emprestimos (livro_id, nome_aluno, turma, data_devolucao) VALUES (?, ?, ?, ?)",
-      [livro_id, nome_aluno, turma ?? null, data_devolucao ?? null]
+      [livro_id, nome_aluno, turma, data_devolucao]
     );
 
-    await db.query("UPDATE livros SET disponivel = false WHERE id = ?", [livro_id]);
+    await db.query("UPDATE livros SET disponivel = 0 WHERE id = ?", [livro_id]);
 
-    res.status(201).json({ mensagem: "Empréstimo registrado!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao registrar empréstimo", detalhe: error.message });
+    return created(res, { mensagem: "Empréstimo registrado com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const devolverLivro = async (req, res) => {
+export const devolverLivro = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const [[emp]] = await db.query(
+      "SELECT livro_id, devolvido FROM emprestimos WHERE id = ?", [id]
+    );
 
-    const [[emp]] = await db.query("SELECT livro_id FROM emprestimos WHERE id = ?", [id]);
-    if (!emp) return res.status(404).json({ erro: "Empréstimo não encontrado." });
+    if (!emp) return notFound(res, "Empréstimo não encontrado.");
+    if (emp.devolvido) return badRequest(res, "Este livro já foi marcado como devolvido.");
 
     await db.query(
-      "UPDATE emprestimos SET devolvido = true, data_devolucao = CURDATE() WHERE id = ?",
+      "UPDATE emprestimos SET devolvido = 1, data_devolucao = CURDATE() WHERE id = ?",
       [id]
     );
+    await db.query("UPDATE livros SET disponivel = 1 WHERE id = ?", [emp.livro_id]);
 
-    await db.query("UPDATE livros SET disponivel = true WHERE id = ?", [emp.livro_id]);
-
-    res.json({ mensagem: "Livro devolvido!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao devolver livro", detalhe: error.message });
+    return ok(res, { mensagem: "Livro devolvido com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const deleteEmprestimo = async (req, res) => {
+export const deleteEmprestimo = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const [check] = await db.query("SELECT id FROM emprestimos WHERE id = ?", [id]);
+
+    if (check.length === 0) return notFound(res, "Empréstimo não encontrado.");
+
     await db.query("DELETE FROM emprestimos WHERE id = ?", [id]);
-    res.json({ mensagem: "Empréstimo removido!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao remover empréstimo", detalhe: error.message });
+    return ok(res, { mensagem: "Registro de empréstimo removido com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };

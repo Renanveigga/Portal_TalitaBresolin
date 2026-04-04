@@ -6,52 +6,80 @@ import styles from "./AdminEmprestimos.module.css";
 export default function AdminEmprestimos() {
   const [emprestimos, setEmprestimos] = useState([]);
   const [livros, setLivros]           = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [filtro, setFiltro]           = useState("todos");
   const [form, setForm]               = useState({
     livro_id: "", nome_aluno: "", turma: "", data_devolucao: "",
   });
-
-  const carregar = () => getEmprestimos().then((r) => setEmprestimos(r.data));
+ 
+  const carregarEmprestimos = () => {
+    setLoading(true);
+    getEmprestimos()
+      .then((r) => setEmprestimos(r.data?.dados || r.data || []))
+      .catch(err => console.error("Erro ao carregar empréstimos:", err))
+      .finally(() => setLoading(false));
+  };
+ 
+  const carregarLivros = () => {
+    getLivros().then((r) => setLivros(r.data?.dados || r.data || []));
+  };
 
   useEffect(() => {
-    carregar();
-    getLivros().then((r) =>
-      setLivros(r.data)
-    );
+    carregarEmprestimos();
+    carregarLivros();
   }, []);
 
   const handleCreate = async () => {
-    if (!form.livro_id || !form.nome_aluno) return;
-    await createEmprestimo(form);
-    setForm({ livro_id: "", nome_aluno: "", turma: "", data_devolucao: "" });
-    carregar();
-    getLivros().then((r) => setLivros(r.data));
+    if (!form.livro_id || !form.nome_aluno) {
+      alert("Selecione um livro e digite o nome do aluno.");
+      return;
+    }
+
+    try {
+      await createEmprestimo(form);
+      setForm({ livro_id: "", nome_aluno: "", turma: "", data_devolucao: "" });
+      carregarEmprestimos();
+      carregarLivros(); 
+    } catch (err) {
+      alert("Erro ao registrar empréstimo.");
+    }
   };
 
   const handleDevolver = async (id) => {
-    await devolverLivro(id);
-    carregar();
+    try {
+      await devolverLivro(id);
+      carregarEmprestimos();
+      carregarLivros(); 
+    } catch (err) {
+      alert("Erro ao processar devolução.");
+    }
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Remover este registro?")) return;
-    await deleteEmprestimo(id);
-    carregar();
+    try {
+      await deleteEmprestimo(id);
+      carregarEmprestimos();
+      carregarLivros();
+    } catch (err) {
+      alert("Erro ao excluir registro.");
+    }
   };
+ 
+  const listaEmprestimos = Array.isArray(emprestimos) ? emprestimos : [];
 
-  const filtrados = emprestimos.filter((e) => {
+  const filtrados = listaEmprestimos.filter((e) => {
     if (filtro === "ativos")     return !e.devolvido;
     if (filtro === "devolvidos") return e.devolvido;
     return true;
   });
-
-  const livrosDisponiveis = livros.filter((l) => Boolean(l.disponivel));
+ 
+  const livrosDisponiveis = (Array.isArray(livros) ? livros : []).filter((l) => Boolean(l.disponivel));
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>📖 Histórico de Empréstimos</h3>
+      <h3 className={styles.sectionTitle}>📖 Controle de Biblioteca</h3>
 
-      {/* Formulário */}
       <div className={styles.formCard}>
         <p className={styles.formLabel}>Registrar novo empréstimo</p>
         <div className={styles.formGrid}>
@@ -82,7 +110,7 @@ export default function AdminEmprestimos() {
           />
 
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>Data de devolução prevista</label>
+            <label className={styles.inputLabel}>Devolução prevista</label>
             <input
               className={styles.input}
               type="date"
@@ -112,8 +140,7 @@ export default function AdminEmprestimos() {
           </button>
         ))}
       </div>
-
-      {/* Tabela */}
+ 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -128,13 +155,15 @@ export default function AdminEmprestimos() {
             </tr>
           </thead>
           <tbody>
-            {filtrados.map((e) => (
+            {loading ? (
+              <tr><td colSpan={7} className={styles.empty}>Carregando...</td></tr>
+            ) : filtrados.map((e) => (
               <tr key={e.id}>
                 <td className={styles.tdTitle}>{e.livro_titulo}</td>
                 <td className={styles.tdMeta}>{e.nome_aluno}</td>
-                <td className={styles.tdMeta}>{e.turma ?? "—"}</td>
+                <td className={styles.tdMeta}>{e.turma || "—"}</td>
                 <td className={styles.tdMeta}>{e.data_emprestimo?.slice(0, 10)}</td>
-                <td className={styles.tdMeta}>{e.data_devolucao?.slice(0, 10) ?? "—"}</td>
+                <td className={styles.tdMeta}>{e.data_devolucao?.slice(0, 10) || "—"}</td>
                 <td>
                   <span className={`${styles.status} ${e.devolvido ? styles.devolvido : styles.ativo}`}>
                     {e.devolvido ? "Devolvido" : "Em aberto"}
@@ -154,7 +183,7 @@ export default function AdminEmprestimos() {
                 </td>
               </tr>
             ))}
-            {filtrados.length === 0 && (
+            {!loading && filtrados.length === 0 && (
               <tr>
                 <td colSpan={7} className={styles.empty}>Nenhum registro encontrado.</td>
               </tr>

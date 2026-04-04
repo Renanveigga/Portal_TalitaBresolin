@@ -22,15 +22,18 @@ function getInitials(nome = "") {
 
 function timeAgo(date) {
   if (!date) return "";
-  const diff = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (diff < 60)    return "agora mesmo";
-  if (diff < 3600)  return `${Math.floor(diff / 60)}min`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  return `${Math.floor(diff / 86400)}d`;
+  try {
+    const diff = Math.floor((Date.now() - new Date(date)) / 1000);
+    if (diff < 60)    return "agora mesmo";
+    if (diff < 3600)  return `${Math.floor(diff / 60)}min`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    return `${Math.floor(diff / 86400)}d`;
+  } catch (e) { return ""; }
 }
  
 function TalentoCard({ talento, onAbrir }) {
   const [liked, setLiked] = useState(false);
+ 
   const [likes, setLikes] = useState(Math.floor(Math.random() * 20) + 1);
 
   const handleLike = (e) => {
@@ -76,7 +79,7 @@ function TalentoCard({ talento, onAbrir }) {
             color:      isTI ? "#2E86C1" : "#F39C12",
           }}
         >
-          {isTI ? "💻 TI" : "📊 ADM"} · {talento.ano}
+          {isTI ? "💻 TI" : "📊 ADM"} · {talento.ano}º ano
         </span>
       </div>
  
@@ -99,8 +102,9 @@ function TalentoCard({ talento, onAbrir }) {
       >
  
         <div className={styles.habilidades}>
-          {talento.habilidades?.split(",").map((h, i) => (
-            <span key={i} className={styles.habTag}>{h.trim()}</span>
+ 
+          {(talento.habilidades || "").split(",").map((h, i) => (
+            h.trim() && <span key={i} className={styles.habTag}>{h.trim()}</span>
           ))}
         </div>
  
@@ -109,13 +113,12 @@ function TalentoCard({ talento, onAbrir }) {
             className={styles.bio}
             dangerouslySetInnerHTML={{ __html: talento.bio_html }}
           />
-        ) : talento.bio ? (
-          <p className={styles.bio}>{talento.bio}</p>
-        ) : null}
+        ) : (
+          <p className={styles.bio}>{talento.bio || "Sem biografia disponível."}</p>
+        )}
       </div>
  
       <div className={styles.postFooter}>
-
         <div className={styles.postActions}>
           <button className={styles.actionBtn} onClick={handleLike}>
             {liked
@@ -129,6 +132,7 @@ function TalentoCard({ talento, onAbrir }) {
             onClick={(e) => {
               e.stopPropagation();
               navigator.clipboard?.writeText(window.location.href);
+              alert("Link copiado!");
             }}
           >
             <Share size={18} />
@@ -204,21 +208,23 @@ function TalentoModal({ talento, onFechar }) {
 
         <div className={styles.modalBody}>
           <p className={styles.modalNome}>{talento.nome}</p>
-          <p className={styles.modalInfo}>{talento.curso} · {talento.ano} ano</p>
+          <p className={styles.modalInfo}>{talento.curso} · {talento.ano}º ano</p>
  
-          {talento.bio_html && (
-            <div className={styles.modalSection}>
-              <p className={styles.modalLabel}>Sobre</p>
+          <div className={styles.modalSection}>
+            <p className={styles.modalLabel}>Sobre</p>
+            {talento.bio_html ? (
               <div className={styles.bioRendered}
                 dangerouslySetInnerHTML={{ __html: talento.bio_html }} />
-            </div>
-          )}
+            ) : (
+              <p className={styles.bio}>{talento.bio || "Sem descrição."}</p>
+            )}
+          </div>
  
           <div className={styles.modalSection}>
             <p className={styles.modalLabel}>Habilidades</p>
             <div className={styles.habilidades}>
-              {talento.habilidades?.split(",").map((h, i) => (
-                <span key={i} className={styles.habTag}>{h.trim()}</span>
+              {(talento.habilidades || "").split(",").map((h, i) => (
+                h.trim() && <span key={i} className={styles.habTag}>{h.trim()}</span>
               ))}
             </div>
           </div>
@@ -274,7 +280,11 @@ export default function Talentos() {
   const carregar = (filtros = {}) => {
     setLoading(true);
     getTalentos(filtros)
-      .then((r) => setTalentos(r.data))
+      .then((r) => {
+ 
+        setTalentos(r.data?.dados || r.data || []);
+      })
+      .catch(err => console.error("Erro ao carregar talentos:", err))
       .finally(() => setLoading(false));
   };
 
@@ -289,17 +299,20 @@ export default function Talentos() {
   };
 
   const handleLimpar = () => {
-    setFiltroCurso(""); setFiltroHab(""); setOrdem("recente");
+    setFiltroCurso(""); 
+    setFiltroHab(""); 
+    setOrdem("recente");
     carregar();
   };
 
   if (showCadastro) {
     return <CadastroTalento onVoltar={() => { setShowCadastro(false); carregar(); }} />;
   }
+ 
+  const listaTalentos = Array.isArray(talentos) ? talentos : [];
 
   return (
     <div>
- 
       <div className={styles.pageHeader}>
         <div>
           <h2 className="page-title">🌟 Banco de Talentos</h2>
@@ -314,7 +327,6 @@ export default function Talentos() {
  
       <div className={styles.filtrosCard}>
         <div className={styles.filtroRow}>
-
           <div className={styles.filtroGroup}>
             <label className={styles.filtroLabel}>Curso</label>
             <div className={styles.filtroBtns}>
@@ -354,7 +366,6 @@ export default function Talentos() {
               <button className={styles.btnLimpar} onClick={handleLimpar}>✕ Limpar</button>
             )}
           </div>
-
         </div>
  
         <div className={styles.tags}>
@@ -362,7 +373,13 @@ export default function Talentos() {
           {HABILIDADES_SUGERIDAS.map((h) => (
             <button key={h}
               className={`${styles.tag} ${filtroHab === h ? styles.tagActive : ""}`}
-              onClick={() => setFiltroHab(h)}
+              onClick={() => {
+                setFiltroHab(h);
+ 
+                const filtros = { habilidade: h };
+                if (filtroCurso) filtros.curso = filtroCurso;
+                carregar(filtros);
+              }}
             >
               {h}
             </button>
@@ -373,18 +390,18 @@ export default function Talentos() {
       <p className={styles.contador}>
         {loading
           ? "Buscando talentos..."
-          : `${talentos.length} talento${talentos.length !== 1 ? "s" : ""} encontrado${talentos.length !== 1 ? "s" : ""}`
+          : `${listaTalentos.length} talento${listaTalentos.length !== 1 ? "s" : ""} encontrado${listaTalentos.length !== 1 ? "s" : ""}`
         }
       </p>
  
-      {talentos.length === 0 && !loading ? (
+      {listaTalentos.length === 0 && !loading ? (
         <div className={styles.empty}>
           <p className={styles.emptyIcon}>🔍</p>
           <p className={styles.emptyText}>Nenhum talento encontrado com esses filtros.</p>
         </div>
       ) : (
         <div className={styles.feedList}>
-          {talentos.map((t) => (
+          {listaTalentos.map((t) => (
             <TalentoCard key={t.id} talento={t} onAbrir={setTalentoAberto} />
           ))}
         </div>

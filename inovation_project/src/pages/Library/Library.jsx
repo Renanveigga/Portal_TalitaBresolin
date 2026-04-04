@@ -13,18 +13,32 @@ export default function Library() {
 
   useEffect(() => {
     getLivros()
-      .then((res) => setLivros(res.data))
+      .then((res) => {
+ 
+        const listaLivros = res.data?.dados || res.data || [];
+        setLivros(listaLivros);
+      })
+      .catch(err => console.error("Erro ao carregar livros:", err))
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = livros.filter((b) => {
-    const matchSearch = b.titulo.toLowerCase().includes(search.toLowerCase()) ||
-                        b.autor.toLowerCase().includes(search.toLowerCase());
+ 
+  const filtered = (Array.isArray(livros) ? livros : []).filter((b) => {
+ 
+    const titulo = b.titulo || "";
+    const autor = b.autor || "";
+
+    const matchSearch = titulo.toLowerCase().includes(search.toLowerCase()) ||
+                        autor.toLowerCase().includes(search.toLowerCase());
+    
     const matchCat    = categoria === "Todas" || b.categoria === categoria;
+ 
     const disp        = Boolean(b.disponivel);
+    
     const matchDisp   = disponivel === "todos" ||
                         (disponivel === "disponivel" && disp) ||
                         (disponivel === "emprestado" && !disp);
+
     return matchSearch && matchCat && matchDisp;
   });
 
@@ -51,7 +65,6 @@ export default function Library() {
       />
 
       <div className={styles.filters}>
-
         <div className={styles.filterGroup}>
           <p className={styles.filterLabel}>Categoria</p>
           <select
@@ -85,7 +98,6 @@ export default function Library() {
           </div>
         </div>
 
-        {/* Limpar */}
         {temFiltro && (
           <button className={styles.clearBtn} onClick={limparFiltros}>
             ✕ Limpar filtros

@@ -1,50 +1,62 @@
 import db from "../config/db.js";
+import { ok, created, notFound, serverError } from "../utils/response.js";
+import { sanitize } from "../middlewares/validate.js";
 
-export const getAvisos = async (req, res) => {
+export const getAvisos = async (req, res, next) => {
   try {
     const [rows] = await db.query(
       "SELECT * FROM avisos ORDER BY data_evento ASC"
     );
-    res.json(rows);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar avisos", detalhe: error.message });
+    return ok(res, rows);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const getAvisoById = async (req, res) => {
+export const getAvisoById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const [rows] = await db.query("SELECT * FROM avisos WHERE id = ?", [id]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ erro: "Aviso não encontrado" });
+      return notFound(res, "Aviso não encontrado.");
     }
-
-    res.json(rows[0]);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar aviso", detalhe: error.message });
+    return ok(res, rows[0]);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const createAviso = async (req, res) => {
+export const createAviso = async (req, res, next) => {
   try {
-    const { titulo, descricao, tipo, data_evento } = req.body;
+    const titulo     = sanitize(req.body.titulo);
+    const descricao  = sanitize(req.body.descricao ?? "");
+    const tipo       = sanitize(req.body.tipo);
+    const dataEvento = sanitize(req.body.data_evento);
+
     const [result] = await db.query(
       "INSERT INTO avisos (titulo, descricao, tipo, data_evento) VALUES (?, ?, ?, ?)",
-      [titulo, descricao, tipo, data_evento]
+      [titulo, descricao, tipo, dataEvento]
     );
-    res.status(201).json({ mensagem: "Aviso criado!", id: result.insertId });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao criar aviso", detalhe: error.message });
+
+    return created(res, { id: result.insertId, mensagem: "Aviso criado com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const deleteAviso = async (req, res) => {
+export const deleteAviso = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const [check] = await db.query("SELECT id FROM avisos WHERE id = ?", [id]);
+
+    if (check.length === 0) {
+      return notFound(res, "Aviso não encontrado.");
+    }
+
     await db.query("DELETE FROM avisos WHERE id = ?", [id]);
-    res.json({ mensagem: "Aviso removido!" });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao remover aviso", detalhe: error.message });
+    return ok(res, { mensagem: "Aviso removido com sucesso." });
+  } catch (err) {
+    next(err);
   }
 };

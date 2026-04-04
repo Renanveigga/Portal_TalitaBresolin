@@ -9,15 +9,21 @@ export default function Login({ onLogin }) {
 
  const handleSubmit = async () => {
   setLoading(true);
-  setErro(null);
-
   try {
-    await login(senha);
-
-    onLogin();
-
-  } catch {
-    setErro("Senha incorreta. Tente novamente.");
+    const response = await login(senha);
+ 
+    console.log("Resposta do Login:", response.data);
+ 
+    const tokenGerado = response.data.token || response.data.dados?.token;
+    
+    if (tokenGerado) {
+      localStorage.setItem("token", tokenGerado);
+      onLogin();  
+    } else {
+      setErro("Erro: Servidor não enviou o token de acesso.");
+    }
+  } catch (err) {
+    setErro("Senha incorreta.");
   } finally {
     setLoading(false);
   }

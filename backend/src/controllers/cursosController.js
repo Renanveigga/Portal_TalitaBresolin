@@ -1,6 +1,7 @@
 import db from "../config/db.js";
+import { ok, notFound } from "../utils/response.js";
 
-export const getCursos = async (req, res) => {
+export const getCursos = async (req, res, next) => {
   try {
     const [cursos] = await db.query("SELECT * FROM cursos");
 
@@ -13,27 +14,27 @@ export const getCursos = async (req, res) => {
       })
     );
 
-    res.json(cursosComProfessores);
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar cursos", detalhe: error.message });
+    return ok(res, cursosComProfessores);
+  } catch (err) {
+    next(err);
   }
 };
 
-export const getCursoById = async (req, res) => {
+export const getCursoById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const [cursos] = await db.query("SELECT * FROM cursos WHERE id = ?", [id]);
 
     if (cursos.length === 0) {
-      return res.status(404).json({ erro: "Curso não encontrado" });
+      return notFound(res, "Curso não encontrado.");
     }
 
     const [professores] = await db.query(
       "SELECT * FROM professores WHERE curso_id = ?", [id]
     );
 
-    res.json({ ...cursos[0], professores });
-  } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar curso", detalhe: error.message });
+    return ok(res, { ...cursos[0], professores });
+  } catch (err) {
+    next(err);
   }
 };

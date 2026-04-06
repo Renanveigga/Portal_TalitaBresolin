@@ -12,10 +12,15 @@ const pool = mysql.createPool({
   
   waitForConnections: true,
   connectionLimit: 10,
+  charset: "utf8mb4",
 
   ssl: process.env.DB_SSL === "true"
     ? { rejectUnauthorized: false }
     : undefined
 });
 
-export default pool.promise();
+const promisePool = pool.promise();
+ 
+promisePool.query("SET NAMES utf8mb4");
+
+export default promisePool;

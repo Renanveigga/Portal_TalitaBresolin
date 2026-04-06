@@ -1,14 +1,19 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
+if (!import.meta.env.VITE_API_URL) {
+  throw new Error("VITE_API_URL não definida");
+}
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   if (token) {
-     config.headers.Authorization = `Bearer ${token}`;
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;

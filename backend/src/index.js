@@ -46,7 +46,7 @@ app.use(cors({
  
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === "development" ? 1000 : 100, // 1000 no dev, 100 no prod
+  max: process.env.NODE_ENV === "development" ? 1000 : 100, 
   standardHeaders: true,
   legacyHeaders: false,
   message: { sucesso: false, erro: "Muitas requisições. Tente novamente em alguns minutos." },
@@ -85,5 +85,5 @@ app.use(notFoundHandler);
 app.use(errorHandler);
  
 app.listen(PORT, () => {
-  console.log(`[${new Date().toISOString()}] Servidor rodando em http://localhost:${PORT}`);
+  console.log(`[${new Date().toISOString()}] Servidor rodando na porta ${PORT}`);
 });

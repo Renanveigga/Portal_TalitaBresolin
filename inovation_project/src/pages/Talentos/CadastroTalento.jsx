@@ -2,7 +2,11 @@ import { useState, useRef } from "react";
 import { createTalento } from "../../services/talentosService";
 import styles from "./Talentos.module.css";
 import { marked } from "marked";
-import { CameraFill, Laptop, SuitcaseLgFill, LockFill, LaptopFill, StarFill, FileEarmarkRichtextFill, PatchCheckFill, EyeFill, PencilFill } from "react-bootstrap-icons";
+import { 
+  CameraFill, Laptop, SuitcaseLgFill, LaptopFill, 
+  StarFill, FileEarmarkRichtextFill, PatchCheckFill, 
+  EyeFill, PencilFill 
+} from "react-bootstrap-icons";
 
 const HABILIDADES_TI = ["JavaScript", "Python", "React", "Node.js", "MySQL", "PHP", "Java", "Redes", "Hardware", "Linux", "CSS", "TypeScript", "Git", "Docker"];
 const HABILIDADES_ADM = ["Excel", "Word", "PowerPoint", "Gestão", "Marketing", "Contabilidade", "Finanças", "RH", "Logística", "Vendas", "Atendimento", "SAP"];
@@ -29,6 +33,7 @@ export default function CadastroTalento({ onVoltar }) {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
   const [bioPreview, setBioPreview] = useState(false);
+  
   const fotoRef = useRef();
   const curriculoRef = useRef();
 
@@ -60,34 +65,42 @@ export default function CadastroTalento({ onVoltar }) {
     }));
   };
 
-  const handleEnviar = async () => {
-    if (!form.nome || !form.habilidades.length) {
+  const handleEnviar = async (e) => {
+    if (e) e.preventDefault();
+    
+    if (!form.nome || form.habilidades.length === 0) {
       setErro("Preencha o nome e selecione ao menos uma habilidade.");
       return;
     }
+
     setLoading(true);
     setErro(null);
+
     try {
       const formData = new FormData();
-      formData.append("nome", form.nome);
+ 
+      formData.append("nome", form.nome.trim());
       formData.append("curso", form.curso);
       formData.append("ano", form.ano);
       formData.append("habilidades", form.habilidades.join(", "));
-      formData.append("linkedin", form.linkedin);
-      formData.append("github", form.github);
-      formData.append("instagram", form.instagram);
-      formData.append("email", form.email);
-      formData.append("bio", form.bio);
  
-      formData.append("status", "pendente"); 
-
+      if (form.linkedin) formData.append("linkedin", form.linkedin.trim());
+      if (form.github) formData.append("github", form.github.trim());
+      if (form.instagram) formData.append("instagram", form.instagram.trim());
+      if (form.email) formData.append("email", form.email.trim());
+      if (form.bio) formData.append("bio", form.bio);
+ 
       if (foto) formData.append("foto", foto);
       if (curriculo) formData.append("curriculo", curriculo);
-      
-      await createTalento(formData);
+
+      const response = await createTalento(formData);
+      console.log("Sucesso:", response.data);
       setEnviado(true);
-    } catch {
-      setErro("Erro ao enviar. Tente novamente.");
+    } catch (err) {
+ 
+      console.error("Erro completo do Axios:", err);
+      const mensagemErro = err.response?.data?.mensagem || err.response?.data?.error || "Erro interno no servidor (500).";
+      setErro(mensagemErro);
     } finally {
       setLoading(false);
     }
@@ -95,7 +108,7 @@ export default function CadastroTalento({ onVoltar }) {
 
   if (enviado) {
     return (
-      <div>
+      <div className={styles.container}>
         <button className={styles.btnVoltar} onClick={onVoltar}>← Voltar</button>
         <div className={styles.successCard}>
           <p className={styles.successIcon}><PatchCheckFill /></p>
@@ -112,48 +125,62 @@ export default function CadastroTalento({ onVoltar }) {
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       <button className={styles.btnVoltar} onClick={onVoltar}>← Voltar</button>
-      <h2 className="page-title">< StarFill /> Cadastrar Perfil</h2>
+      <h2 className="page-title"><StarFill /> Cadastrar Perfil</h2>
       <p className="page-subtitle">
         Preencha suas informações para aparecer no Banco de Talentos.
       </p>
 
       <div className={styles.cadastroGrid}>
-
+ 
         <div className={styles.fotoCol}>
           <div className={styles.fotoUpload} onClick={() => fotoRef.current.click()}>
-            {fotoPreview
-              ? <img src={fotoPreview} alt="preview" className={styles.fotoPreview} />
-              : <>
+            {fotoPreview ? (
+              <img src={fotoPreview} alt="preview" className={styles.fotoPreview} />
+            ) : (
+              <>
                 <span className={styles.fotoIcon}><CameraFill /></span>
                 <p className={styles.fotoText}>Clique para adicionar foto</p>
                 <p className={styles.fotoSub}>JPG, PNG — máx 3MB</p>
               </>
-            }
+            )}
           </div>
-          <input ref={fotoRef} type="file" accept="image/*" style={{ display: "none" }}
+          <input 
+            ref={fotoRef} 
+            type="file" 
+            accept="image/*" 
+            style={{ display: "none" }}
             onChange={(e) => {
               const f = e.target.files[0];
-              if (f) { setFoto(f); setFotoPreview(URL.createObjectURL(f)); }
+              if (f) { 
+                setFoto(f); 
+                setFotoPreview(URL.createObjectURL(f)); 
+              }
             }}
           />
 
           <div className={styles.curriculoUpload} onClick={() => curriculoRef.current.click()}>
-            {curriculo ? <FileEarmarkRichtextFill /> : <FileEarmarkRichtextFill />} {curriculo ? curriculo.name : "Anexar currículo (PDF)"}
+            <FileEarmarkRichtextFill /> {curriculo ? curriculo.name : "Anexar currículo (PDF)"}
           </div>
-          <input ref={curriculoRef} type="file" accept="application/pdf"
+          <input 
+            ref={curriculoRef} 
+            type="file" 
+            accept="application/pdf"
             style={{ display: "none" }}
             onChange={(e) => setCurriculo(e.target.files[0] || null)}
           />
         </div>
-
+ 
         <div className={styles.dadosCol}>
-
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabel}>Nome completo *</label>
-            <input className={styles.input} placeholder="Seu nome completo"
-              value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            <input 
+              className={styles.input} 
+              placeholder="Seu nome completo"
+              value={form.nome} 
+              onChange={(e) => setForm({ ...form, nome: e.target.value })} 
+            />
           </div>
 
           <div className={styles.rowGroup}>
@@ -161,12 +188,14 @@ export default function CadastroTalento({ onVoltar }) {
               <label className={styles.fieldLabel}>Curso *</label>
               <div className={styles.cursoBtns}>
                 {["TI", "ADM"].map((c) => (
-                  <button key={c}
+                  <button 
+                    key={c}
+                    type="button"
                     className={`${styles.cursoBtn} ${form.curso === c ? styles.cursoBtnActive : ""}`}
                     onClick={() => setForm({ ...form, curso: c, habilidades: [] })}
                   >
                     {c === "TI" ? <LaptopFill style={{ marginRight: '8px' }} /> : <SuitcaseLgFill style={{ marginRight: '8px' }} />}
-                    {c === "TI" ? "TI" : "ADM"}
+                    {c}
                   </button>
                 ))}
               </div>
@@ -175,7 +204,9 @@ export default function CadastroTalento({ onVoltar }) {
               <label className={styles.fieldLabel}>Ano *</label>
               <div className={styles.cursoBtns}>
                 {["1º", "2º", "3º"].map((a) => (
-                  <button key={a}
+                  <button 
+                    key={a}
+                    type="button"
                     className={`${styles.cursoBtn} ${form.ano === a ? styles.cursoBtnActive : ""}`}
                     onClick={() => setForm({ ...form, ano: a })}
                   >
@@ -187,10 +218,12 @@ export default function CadastroTalento({ onVoltar }) {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.fieldLabel}>Habilidades * (selecione as que domina)</label>
+            <label className={styles.fieldLabel}>Habilidades *</label>
             <div className={styles.habilidadesOpts}>
               {habilidadesOpts.map((h) => (
-                <button key={h}
+                <button 
+                  key={h}
+                  type="button"
                   className={`${styles.habBtn} ${form.habilidades.includes(h) ? styles.habBtnActive : ""}`}
                   onClick={() => toggleHabilidade(h)}
                 >
@@ -205,24 +238,23 @@ export default function CadastroTalento({ onVoltar }) {
             <div className={styles.habCustomRow}>
               <input
                 className={styles.input}
-                placeholder="Ex: Photoshop, TOTVS, Inglês..."
+                placeholder="Ex: Photoshop, Inglês..."
                 value={form.habPersonalizada}
                 onChange={(e) => setForm({ ...form, habPersonalizada: e.target.value })}
                 onKeyDown={(e) => e.key === "Enter" && addHabPersonalizada()}
               />
-              <button className={styles.btnAddHab} onClick={addHabPersonalizada}>
+              <button type="button" className={styles.btnAddHab} onClick={addHabPersonalizada}>
                 + Adicionar
               </button>
             </div>
 
             {form.habilidades.length > 0 && (
               <div className={styles.habSelecionadas}>
-                <p className={styles.habSelecionadasLabel}>Selecionadas:</p>
                 <div className={styles.habilidades}>
                   {form.habilidades.map((h) => (
                     <span key={h} className={styles.habTagRemovivel}>
                       {h}
-                      <button className={styles.habRemove} onClick={() => removeHabilidade(h)}>×</button>
+                      <button type="button" className={styles.habRemove} onClick={() => removeHabilidade(h)}>×</button>
                     </span>
                   ))}
                 </div>
@@ -234,20 +266,11 @@ export default function CadastroTalento({ onVoltar }) {
             <div className={styles.bioHeader}>
               <label className={styles.fieldLabel}>Bio (suporta Markdown)</label>
               <button
+                type="button"
                 className={styles.bioToggle}
                 onClick={() => setBioPreview((p) => !p)}
               >
-                {bioPreview ? (
-                  <>
-                    <PencilFill className="me-2" style={{ marginRight: '8px' }} />
-                    Editar
-                  </>
-                ) : (
-                  <>
-                    <EyeFill className="me-2" style={{ marginRight: '8px' }} />
-                    Preview
-                  </>
-                )}
+                {bioPreview ? <><PencilFill style={{ marginRight: '8px' }} />Editar</> : <><EyeFill style={{ marginRight: '8px' }} />Preview</>}
               </button>
             </div>
 
@@ -255,29 +278,29 @@ export default function CadastroTalento({ onVoltar }) {
               <div
                 className={styles.bioPreview}
                 dangerouslySetInnerHTML={{
-                  __html: form.bio
-                    ? marked.parse(form.bio)
-                    : "<p style='color: var(--color-text-light)'>Nada para mostrar ainda...</p>",
+                  __html: form.bio ? marked.parse(form.bio) : "<p>Nada para mostrar...</p>",
                 }}
               />
             ) : (
               <textarea
                 className={styles.textarea}
-                placeholder={`Escreva sobre você usando Markdown:\n\n**Experiência:** ...\n\n- Habilidade 1\n- Habilidade 2`}
+                placeholder="Fale sobre suas experiências..."
                 value={form.bio}
                 onChange={(e) => setForm({ ...form, bio: e.target.value })}
                 rows={6}
               />
             )}
-            <p className={styles.bioHint}>
-              Suporta: **negrito**, *itálico*, - listas, [links](url)
-            </p>
           </div>
 
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabel}>E-mail de contato</label>
-            <input className={styles.input} placeholder="seu@email.com" type="email"
-              value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            <input 
+              className={styles.input} 
+              placeholder="seu@email.com" 
+              type="email"
+              value={form.email} 
+              onChange={(e) => setForm({ ...form, email: e.target.value })} 
+            />
           </div>
 
           <div className={styles.fieldGroup}>
@@ -300,17 +323,18 @@ export default function CadastroTalento({ onVoltar }) {
           {erro && <p className={styles.erro}>{erro}</p>}
 
           <div className={styles.anonCard}>
-            <SuitcaseLgFill style={{ marginRight: '2%' }} />Seus dados passarão por moderação antes de serem publicados.
+            <SuitcaseLgFill style={{ marginRight: '10px' }} />
+            Dados passarão por moderação antes de serem publicados.
           </div>
 
           <button
+            type="button"
             className={styles.btnEnviarCadastro}
             onClick={handleEnviar}
             disabled={loading}
           >
             {loading ? "Enviando..." : "Enviar para aprovação"}
           </button>
-
         </div>
       </div>
     </div>

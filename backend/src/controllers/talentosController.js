@@ -23,7 +23,8 @@ export const getTalentos = async (req, res, next) => {
   try {
     const { curso, habilidade, ordem } = req.query;
     const params = [];
-    let query = "SELECT * FROM talentos WHERE status = 'aprovado'";
+ 
+let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em FROM talentos WHERE 1=1";
 
     if (curso && ["TI", "ADM"].includes(curso)) {
       query += " AND curso = ?";
@@ -67,33 +68,53 @@ export const getTalentosAdmin = async (req, res, next) => {
   }
 };
 
-export const createTalento = async (req, res, next) => {
+ export const createTalento = async (req, res, next) => {
   try {
-    const nome        = sanitize(req.body.nome);
-    const curso       = sanitize(req.body.curso);
-    const ano         = sanitize(req.body.ano);
-    const habilidades = sanitize(req.body.habilidades);
-    const linkedin    = req.body.linkedin   ? sanitize(req.body.linkedin)   : null;
-    const github      = req.body.github     ? sanitize(req.body.github)     : null;
-    const instagram   = req.body.instagram  ? sanitize(req.body.instagram)  : null;
-    const email       = req.body.email      ? sanitize(req.body.email)      : null;
  
+    console.log("Dados recebidos no Body:", req.body);
+    console.log("Arquivos recebidos:", req.files);
+
+ 
+    const nome = sanitize(req.body.nome || "");
+    const curso = sanitize(req.body.curso || "");
+    const ano = sanitize(req.body.ano || "");
+    const habilidades = sanitize(req.body.habilidades || "");
+ 
+    const linkedin = req.body.linkedin ? sanitize(req.body.linkedin) : null;
+    const github = req.body.github ? sanitize(req.body.github) : null;
+    const instagram = req.body.instagram ? sanitize(req.body.instagram) : null;
+    const email = req.body.email ? sanitize(req.body.email) : null;
     const bio = req.body.bio ? String(req.body.bio).slice(0, 5000) : null;
+ 
+    const foto_url = req.files?.foto?.[0] 
+      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}` 
+      : null;
+      
+    const curriculo_url = req.files?.curriculo?.[0] 
+      ? `/uploads/curriculos/${req.files.curriculo[0].filename}` 
+      : null;
+ 
+    const query = `
+      INSERT INTO talentos 
+      (nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    const foto_url      = req.files?.foto?.[0]
-      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}` : null;
-    const curriculo_url = req.files?.curriculo?.[0]
-      ? `/uploads/curriculos/${req.files.curriculo[0].filename}` : null;
+    const [result] = await db.query(query, [
+      nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url
+    ]);
 
-    const [result] = await db.query(
-      `INSERT INTO talentos
-        (nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url]
-    );
+    return created(res, { id: result.insertId, mensagem: "Perfil enviado com sucesso!" });
 
-    return created(res, { id: result.insertId, mensagem: "Perfil enviado para aprovação." });
   } catch (err) {
+ 
+    console.error("ERRO CRÍTICO NO BACKEND:", err);
+    
+  
+    if (err.code === 'ER_BAD_FIELD_ERROR') {
+        return res.status(500).json({ mensagem: "Erro na estrutura do banco de dados." });
+    }
+    
     next(err);
   }
 };

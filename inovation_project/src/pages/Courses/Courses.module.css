@@ -2,10 +2,11 @@
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .tabBtn {
-  padding: 10px 24px;
+  padding: 10px 20px;
   border-radius: var(--radius-sm);
   border: 2px solid transparent;
   font-size: 14px;
@@ -13,6 +14,8 @@
   transition: all 0.2s;
   background: var(--color-bg);
   color: var(--color-text-mid);
+  min-height: 44px;  
+  cursor: pointer;
 }
 
 .tabBtn:hover {
@@ -22,8 +25,9 @@
 
 .tabBtn.active {
   color: #fff;
+ 
 }
-
+ 
 .courseBanner {
   border-radius: var(--radius-lg);
   padding: 28px 30px;
@@ -52,7 +56,7 @@
   opacity: 0.9;
   color: #fff;
 }
-
+ 
 .docenteTitle {
   font-size: 15px;
   font-weight: 700;
@@ -64,4 +68,29 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
+}
+ 
+@media (max-width: 768px) {
+  .courseBanner {
+    padding: 20px;
+  }
+
+  .courseBannerTitle {
+    font-size: 20px;
+  }
+
+  .docenteGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    gap: 8px;
+  }
+
+  .tabBtn {
+    flex: 1;  
+    text-align: center;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
 }

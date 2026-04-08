@@ -12,16 +12,16 @@ import Courses   from "./pages/Courses/Courses";
 import History   from "./pages/History/History";
 import Login     from "./pages/Admin/Login";
 import Admin     from "./pages/Admin/Admin";
-import Talentos from "./pages/Talentos/Talentos";
-import Esportes from "./pages/Esportes/Esportes";
+import Talentos  from "./pages/Talentos/Talentos";
+import Esportes  from "./pages/Esportes/Esportes";
 
 const ROUTE_MAP = {
-  home:    "/",
-  library: "/biblioteca",
-  lost:    "/achados",
-  courses: "/cursos",
-  history: "/historia",
-  admin:   "/admin",
+  home:     "/",
+  library:  "/biblioteca",
+  lost:     "/achados",
+  courses:  "/cursos",
+  history:  "/historia",
+  admin:    "/admin",
   talentos: "/talentos",
   esportes: "/esportes",
 };
@@ -55,21 +55,23 @@ export default function App() {
         dark={dark}
         toggleTheme={toggleTheme}
       />
+
       <div className="app-content">
         <div className="app-topbar">
           <SearchBar />
         </div>
+
         <main className="app-main">
           <Routes>
-            <Route path="/"           element={<Home />}    />
-            <Route path="/biblioteca" element={<Library />} />
-            <Route path="/achados"    element={<Lost />}    />
-            <Route path="/cursos"     element={<Courses />} />
-            <Route path="/historia"   element={<History />} />
+            <Route path="/"           element={<Home />}     />
+            <Route path="/biblioteca" element={<Library />}  />
+            <Route path="/achados"    element={<Lost />}     />
+            <Route path="/cursos"     element={<Courses />}  />
+            <Route path="/historia"   element={<History />}  />
+            <Route path="/talentos"   element={<Talentos />} />
+            <Route path="/esportes"   element={<Esportes />} />
             <Route path="/admin"      element={<Login onLogin={handleLogin} />} />
             <Route path="*"           element={<Navigate to="/" />} />
-            <Route path="/talentos"   element={<Talentos />} />
-            <Route path="/esportes" element={<Esportes />} />
           </Routes>
         </main>
       </div>

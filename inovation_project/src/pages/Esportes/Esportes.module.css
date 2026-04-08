@@ -1,174 +1,205 @@
 .pageHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    gap: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
 }
 
 .headerStats {
-    display: flex;
-    gap: 20px;
-    flex-shrink: 0;
+  display: flex;
+  gap: 20px;
+  flex-shrink: 0;
 }
 
 .headerStat {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .headerStatNum {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--color-text-dark);
-    line-height: 1;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-text-dark);
+  line-height: 1;
 }
 
 .headerStatLabel {
-    font-size: 12px;
-    color: var(--color-text-mid);
+  font-size: 12px;
+  color: var(--color-text-mid);
 }
  
 .filtros {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .filtroBtn {
-    padding: 6px 16px;
-    border-radius: var(--radius-full);
-    border: 1.5px solid var(--color-border);
-    background: transparent;
-    color: var(--color-text-mid);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-mid);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 36px;  
 }
 
 .filtroBtn:hover {
-    border-color: var(--color-primary-light);
+  border-color: var(--color-primary-light);
 }
 
 .filtroBtnActive {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #fff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
 }
  
 .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
 }
- 
+
 .card {
-    background: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
-
+ 
 .cardImg {
-    position: relative;
-    aspect-ratio: 16/9;
-    overflow: hidden;
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: var(--color-bg);
 }
 
 .foto {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
 }
 
 .card:hover .foto {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .semFoto {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .semFotoIcon {
-    font-size: 48px;
+  font-size: 48px;
 }
 
 .medalBadge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: var(--radius-full);
-    color: #fff;
-    backdrop-filter: blur(4px);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  color: #fff;
+  backdrop-filter: blur(4px); 
+  z-index: 1;
 }
-
+ 
 .cardBody {
-    padding: 14px 16px;
+  padding: 14px 16px;
 }
 
 .cardMeta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .modalidade {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-primary-light);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary-light);
 }
 
 .data {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-light);
 }
 
 .cardTitulo {
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--color-text-dark);
-    margin-bottom: 6px;
-    line-height: 1.3;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-text-dark);
+  margin-bottom: 6px;
+  line-height: 1.3;
 }
 
 .cardResumo {
-    font-size: 12px;
-    color: var(--color-text-mid);
-    line-height: 1.5;
-    display: -webkit-box;-webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-clamp: 2;
+  font-size: 12px;
+  color: var(--color-text-mid);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 2;
+}
+ 
+.empty {
+  text-align: center;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-light);
+}
+ 
+@media (max-width: 768px) {
+  .pageHeader {
+    flex-direction: column;
+  }
+  
+  .headerStats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
 }
 
-.empty {
-    text-align: center;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    color: var(--color-text-light);
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
+  }
+  
+  .headerStatNum {
+    font-size: 24px;
+  }
 }

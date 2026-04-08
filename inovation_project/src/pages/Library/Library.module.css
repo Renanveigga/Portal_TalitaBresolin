@@ -11,8 +11,10 @@
   transition: border-color 0.2s;
 }
 
-.searchInput:focus { border-color: var(--color-primary-light); }
-
+.searchInput:focus { 
+  border-color: var(--color-primary-light); 
+}
+ 
 .filters {
   background: var(--color-white);
   border: 1px solid var(--color-border);
@@ -24,75 +26,51 @@
   gap: 14px;
 }
 
-.filterGroup { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.filterGroup { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  flex-wrap: wrap; 
+}
 
 .filterLabel {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 12px; 
+  font-weight: 700; 
   color: var(--color-text-mid);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  min-width: 100px;
+  text-transform: uppercase; 
+  letter-spacing: 0.8px; 
+  min-width: 90px; 
   flex-shrink: 0;
 }
 
-.filterBtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.filterBtns { 
+  display: flex; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+}
 
 .filterBtn {
-  padding: 5px 14px;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   border: 1.5px solid var(--color-border);
   background: transparent;
   color: var(--color-text-mid);
-  font-size: 12px;
+  font-size: 12px; 
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer; 
   transition: all 0.15s;
+  min-height: 36px; 
 }
 
-.filterBtn:hover {
-  border-color: var(--color-primary-light);
-  color: var(--color-primary-light);
+.filterBtn:hover { 
+  border-color: var(--color-primary-light); 
+  color: var(--color-primary-light); 
 }
 
-.filterBtnActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
-}
-
-.clearBtn {
-  align-self: flex-start;
-  padding: 5px 14px;
-  border-radius: var(--radius-full);
-  border: 1.5px solid var(--color-danger-faint);
-  background: transparent;
-  color: var(--color-danger);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.clearBtn:hover { background: var(--color-danger-faint); }
-
-.contador {
-  font-size: 13px;
-  color: var(--color-text-mid);
-  margin-bottom: 16px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
-}
-
-.empty {
-  text-align: center;
-  color: var(--color-text-light);
-  font-size: 14px;
-  padding: 40px 0;
+.filterBtnActive { 
+  background: var(--color-primary); 
+  border-color: var(--color-primary); 
+  color: #fff; 
 }
 
 .filterSelect {
@@ -101,11 +79,81 @@
   border: 1.5px solid var(--color-border);
   background: var(--color-white);
   color: var(--color-text-dark);
-  font-size: 13px;
+  font-size: 13px; 
   font-weight: 600;
-  outline: none;
+  outline: none; 
   cursor: pointer;
-  transition: border-color 0.2s;
+  width: 100%; 
+  max-width: 260px;
 }
 
-.filterSelect:focus { border-color: var(--color-primary-light); }
+.filterSelect:focus { 
+  border-color: var(--color-primary-light); 
+}
+
+.clearBtn {
+  align-self: flex-start; 
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-danger-faint);
+  background: transparent; 
+  color: var(--color-danger);
+  font-size: 12px; 
+  font-weight: 600; 
+  cursor: pointer;
+  min-height: 36px;
+  transition: all 0.15s;
+}
+
+.clearBtn:hover { 
+  background: var(--color-danger-faint); 
+}
+ 
+.contador { 
+  font-size: 13px; 
+  color: var(--color-text-mid); 
+  margin-bottom: 16px; 
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.empty { 
+  text-align: center; 
+  color: var(--color-text-light); 
+  font-size: 14px; 
+  padding: 40px 0; 
+}
+ 
+@media (max-width: 768px) {
+  .filters { 
+    padding: 14px 16px; 
+  }
+  
+  .filterGroup { 
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
+  
+  .filterLabel { 
+    min-width: unset; 
+  }
+  
+  .filterSelect { 
+    max-width: 100%; 
+  }
+  
+  .grid { 
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+    gap: 10px; 
+  }
+}
+
+@media (max-width: 480px) {
+  .grid { 
+    grid-template-columns: 1fr 1fr;  
+  }
+}

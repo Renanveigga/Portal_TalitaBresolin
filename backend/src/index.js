@@ -47,20 +47,12 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
- 
-    const isVercel = origin.endsWith(".vercel.app");
-    const isAllowed = allowedOrigins.includes(origin);
-
-    if (isAllowed || isVercel) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.error(`[CORS REJEITADO]: ${origin}`); 
       callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
  

@@ -5,7 +5,7 @@ export const buscar = async (req, res, next) => {
   try {
     const q = String(req.query.q ?? "").trim();
 
-    if (q.length < 2) {
+    if (q.length < 1) {
       return ok(res, { avisos: [], livros: [], achados: [], talentos: [], esportes: [] });
     }
  

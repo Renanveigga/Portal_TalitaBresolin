@@ -1,7 +1,22 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { buscar } from "../../services/buscaService";
+import {
+  Search,
+  Megaphone,
+  Book,
+  HandIndexThumb,
+  Stars,
+  Trophy,
+  X,
+  ArrowClockwise,
+  CalendarEvent,
+  GeoAlt,
+  ChevronRight,
+  ExclamationCircle,
+} from "react-bootstrap-icons";
 import styles from "./SearchBar.module.css";
+
+const API_URL = "http://localhost:3000";
 
 const TIPO_COLORS = {
   evento: "#2E86C1",
@@ -11,11 +26,11 @@ const TIPO_COLORS = {
 };
 
 const CATEGORIAS_CONFIG = [
-  { key: "avisos", label: "📋 Avisos", rota: "/" },
-  { key: "livros", label: "📚 Biblioteca", rota: "/biblioteca" },
-  { key: "achados", label: "🔍 Achados e Perdidos", rota: "/achados" },
-  { key: "talentos", label: "🌟 Banco de Talentos", rota: "/talentos" },
-  { key: "esportes", label: "🏆 Esportes", rota: "/esportes" },
+  { key: "avisos", label: "Avisos", Icon: Megaphone, rota: "/" },
+  { key: "livros", label: "Biblioteca", Icon: Book, rota: "/biblioteca" },
+  { key: "achados", label: "Achados e Perdidos", Icon: HandIndexThumb, rota: "/achados" },
+  { key: "talentos", label: "Banco de Talentos", Icon: Stars, rota: "/talentos" },
+  { key: "esportes", label: "Esportes", Icon: Trophy, rota: "/esportes" },
 ];
 
 function useDebounce(value, delay) {
@@ -31,9 +46,11 @@ export default function SearchBar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState(null);
   const [aberto, setAberto] = useState(false);
   const navigate = useNavigate();
   const wrapperRef = useRef();
+  const inputRef = useRef();
 
   const debouncedQuery = useDebounce(query, 400);
 
@@ -47,145 +64,147 @@ export default function SearchBar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  useEffect(() => {
-    if (debouncedQuery.trim().length < 2) {
+  const executarBusca = useCallback(async (q) => {
+    if (q.trim().length < 1) {
       setResults(null);
       setAberto(false);
+      setErro(null);
       return;
     }
+
     setLoading(true);
-    buscar(debouncedQuery)
-      .then((res) => {
-        setResults(res.data);
-        setAberto(true);
-      })
-      .finally(() => setLoading(false));
-  }, [debouncedQuery]);
+    setErro(null);
+
+    try {
+      const res = await fetch(
+        `${API_URL}/busca?q=${encodeURIComponent(q.trim())}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Erro ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      setResults(data.dados || data);
+      setAberto(true);
+    } catch (err) {
+      console.error("Erro na busca:", err);
+      setErro("Não foi possível conectar ao servidor.");
+      setResults(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    executarBusca(debouncedQuery);
+  }, [debouncedQuery, executarBusca]);
 
   const total = results
-    ? Object.values(results).reduce((acc, arr) => acc + arr.length, 0)
+    ? Object.values(results).reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0)
     : 0;
 
   const handleNavegar = (rota) => {
     setAberto(false);
     setQuery("");
+    setResults(null);
     navigate(rota);
+  };
+
+  const handleLimpar = () => {
+    setQuery("");
+    setResults(null);
+    setErro(null);
+    setAberto(false);
+    inputRef.current?.focus();
   };
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
-      <div className={styles.inputBox}>
-        <span className={styles.icon}>🔍</span>
+
+      <div className={`${styles.inputBox} ${aberto ? styles.inputBoxAberto : ""}`}>
+        <Search className={styles.searchIcon} size={16} />
+
         <input
+          ref={inputRef}
           className={styles.input}
-          placeholder="Pesquisa universal — livros, avisos, achados, talentos..."
+          placeholder="Buscar livros, avisos, achados, talentos..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => results && setAberto(true)}
+          onFocus={() => results && total > 0 && setAberto(true)}
+          autoComplete="off"
+          spellCheck={false}
         />
-        {loading && <span className={styles.spinner}>⏳</span>}
-        {query && (
-          <button className={styles.clear}
-            onClick={() => { setQuery(""); setResults(null); }}>✕</button>
+
+        {loading && (
+          <ArrowClockwise className={styles.spinner} size={16} />
+        )}
+
+        {query && !loading && (
+          <button className={styles.clear} onClick={handleLimpar} aria-label="Limpar busca">
+            <X size={18} />
+          </button>
         )}
       </div>
 
-      {aberto && results && (
+      {aberto && (
         <div className={styles.dropdown}>
 
-          {total === 0 ? (
-            <div className={styles.emptyState}>
-              <p className={styles.emptyIcon}>🔍</p>
-              <p className={styles.emptyText}>Nenhum resultado para "{query}"</p>
+          {erro && (
+            <div className={styles.erroState}>
+              <ExclamationCircle size={20} className={styles.erroIcon} />
+              <p className={styles.erroText}>{erro}</p>
+              <button className={styles.erroBtn} onClick={() => executarBusca(query)}>
+                Tentar novamente
+              </button>
             </div>
-          ) : (
-            <>
+          )}
 
+          {!erro && results && total === 0 && (
+            <div className={styles.emptyState}>
+              <Search size={32} className={styles.emptyIcon} />
+              <p className={styles.emptyText}>Nenhum resultado para</p>
+              <p className={styles.emptyQuery}>"{query}"</p>
+            </div>
+          )}
+
+          {!erro && results && total > 0 && (
+            <>
               <div className={styles.dropdownHeader}>
-                <span className={styles.totalLabel}>{total} resultado{total !== 1 ? "s" : ""} encontrado{total !== 1 ? "s" : ""}</span>
+                <span className={styles.totalLabel}>
+                  {total} resultado{total !== 1 ? "s" : ""}
+                </span>
                 <span className={styles.queryLabel}>"{query}"</span>
               </div>
 
-              {CATEGORIAS_CONFIG.map(({ key, label, rota }) => {
+              {CATEGORIAS_CONFIG.map(({ key, label, rota, Icon }) => {
                 const items = results[key];
-                if (!items?.length) return null;
+                if (!Array.isArray(items) || items.length === 0) return null;
+
                 return (
                   <div key={key} className={styles.group}>
                     <div className={styles.groupHeader}>
-                      <span className={styles.groupLabel}>{label}</span>
-                      <button className={styles.groupVerTodos}
-                        onClick={() => handleNavegar(rota)}>
-                        Ver todos →
+                      <span className={styles.groupLabel}>
+                        <Icon size={13} />
+                        {label}
+                      </span>
+                      <button
+                        className={styles.groupVerTodos}
+                        onClick={() => handleNavegar(rota)}
+                      >
+                        Ver todos <ChevronRight size={11} />
                       </button>
                     </div>
 
                     {items.map((item) => (
-                      <button key={item.id} className={styles.resultItem}
-                        onClick={() => handleNavegar(rota)}>
-
-                        {key === "avisos" && (
-                          <>
-                            <span className={styles.badge}
-                              style={{ background: TIPO_COLORS[item.tipo] ?? "#888" }}>
-                              {item.tipo}
-                            </span>
-                            <div className={styles.resultInfo}>
-                              <span className={styles.resultTitle}>{item.titulo}</span>
-                              <span className={styles.resultSub}>📅 {item.data?.slice(0, 10)}</span>
-                            </div>
-                          </>
-                        )}
-
-                        {key === "livros" && (
-                          <>
-                            <span className={`${styles.badge} ${Boolean(item.disponivel) ? styles.disp : styles.emp}`}>
-                              {Boolean(item.disponivel) ? "Disponível" : "Emprestado"}
-                            </span>
-                            <div className={styles.resultInfo}>
-                              <span className={styles.resultTitle}>{item.titulo}</span>
-                              <span className={styles.resultSub}>{item.autor} · {item.categoria}</span>
-                            </div>
-                          </>
-                        )}
-
-                        {key === "achados" && (
-                          <>
-                            <span className={`${styles.badge} ${item.retirado ? styles.emp : styles.disp}`}>
-                              {item.retirado ? "Retirado" : "Aguardando"}
-                            </span>
-                            <div className={styles.resultInfo}>
-                              <span className={styles.resultTitle}>{item.descricao}</span>
-                              <span className={styles.resultSub}>📍 {item.sala}</span>
-                            </div>
-                          </>
-                        )}
-
-                        {key === "talentos" && (
-                          <>
-                            <span className={`${styles.badge} ${item.curso === "TI" ? styles.badgeTI : styles.badgeADM}`}>
-                              {item.curso}
-                            </span>
-                            <div className={styles.resultInfo}>
-                              <span className={styles.resultTitle}>{item.nome}</span>
-                              <span className={styles.resultSub}>{item.habilidades?.split(",").slice(0, 2).join(", ")}</span>
-                            </div>
-                          </>
-                        )}
-
-                        {key === "esportes" && (
-                          <>
-                            <span className={`${styles.badge}`}
-                              style={{ background: "#F1C40F" }}>
-                              {item.medalha ?? "🏅"}
-                            </span>
-                            <div className={styles.resultInfo}>
-                              <span className={styles.resultTitle}>{item.titulo}</span>
-                              <span className={styles.resultSub}>{item.modalidade} · {item.data_evento?.slice(0, 10)}</span>
-                            </div>
-                          </>
-                        )}
-
-                        <span className={styles.arrow}>→</span>
+                      <button
+                        key={item.id}
+                        className={styles.resultItem}
+                        onClick={() => handleNavegar(rota)}
+                      >
+                        <ResultItemContent itemKey={key} item={item} />
+                        <ChevronRight className={styles.arrow} size={12} />
                       </button>
                     ))}
                   </div>
@@ -197,4 +216,96 @@ export default function SearchBar() {
       )}
     </div>
   );
+}
+
+function ResultItemContent({ itemKey, item }) {
+  switch (itemKey) {
+
+    case "avisos":
+      return (
+        <>
+          <span
+            className={styles.badge}
+            style={{ background: TIPO_COLORS[item.tipo] ?? "#888" }}
+          >
+            {item.tipo}
+          </span>
+          <div className={styles.resultInfo}>
+            <span className={styles.resultTitle}>{item.titulo}</span>
+            <span className={styles.resultSub}>
+              <CalendarEvent size={11} />
+              {item.data?.slice(0, 10) ?? "—"}
+            </span>
+          </div>
+        </>
+      );
+
+    case "livros": {
+      const disp = Boolean(Number(item.disponivel));
+      return (
+        <>
+          <span className={`${styles.badge} ${disp ? styles.disp : styles.emp}`}>
+            {disp ? "Disponível" : "Emprestado"}
+          </span>
+          <div className={styles.resultInfo}>
+            <span className={styles.resultTitle}>{item.titulo}</span>
+            <span className={styles.resultSub}>
+              {item.autor} · {item.categoria}
+            </span>
+          </div>
+        </>
+      );
+    }
+
+    case "achados":
+      return (
+        <>
+          <span className={`${styles.badge} ${item.retirado ? styles.emp : styles.disp}`}>
+            {item.retirado ? "Retirado" : "Aguardando"}
+          </span>
+          <div className={styles.resultInfo}>
+            <span className={styles.resultTitle}>{item.descricao}</span>
+            <span className={styles.resultSub}>
+              <GeoAlt size={11} />
+              {item.sala}
+            </span>
+          </div>
+        </>
+      );
+
+    case "talentos":
+      return (
+        <>
+          <span
+            className={`${styles.badge} ${item.curso === "TI" ? styles.badgeTI : styles.badgeADM}`}
+          >
+            {item.curso}
+          </span>
+          <div className={styles.resultInfo}>
+            <span className={styles.resultTitle}>{item.nome}</span>
+            <span className={styles.resultSub}>
+              {item.habilidades?.split(",").slice(0, 2).map((h) => h.trim()).join(", ")}
+            </span>
+          </div>
+        </>
+      );
+
+    case "esportes":
+      return (
+        <>
+          <span className={styles.badge} style={{ background: "#F1C40F", color: "#7D6608" }}>
+            <Trophy size={11} />
+          </span>
+          <div className={styles.resultInfo}>
+            <span className={styles.resultTitle}>{item.titulo}</span>
+            <span className={styles.resultSub}>
+              {item.modalidade} · {item.data_evento?.slice(0, 10)}
+            </span>
+          </div>
+        </>
+      );
+
+    default:
+      return null;
+  }
 }

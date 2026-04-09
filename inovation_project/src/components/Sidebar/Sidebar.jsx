@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Sun, MoonStars, List, X } from "react-bootstrap-icons";
 import styles from "./Sidebar.module.css";
-import { NAV_ITEMS } from "../../data/mockData";
+import { NAV_ITEMS } from "../../data/Mockdata";
 
 const ROUTE_MAP = {
   home:    "/",

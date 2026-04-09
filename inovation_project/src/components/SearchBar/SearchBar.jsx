@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import {
   Search,
   Megaphone,
@@ -16,7 +17,7 @@ import {
 } from "react-bootstrap-icons";
 import styles from "./SearchBar.module.css";
 
-const API_URL = "http://localhost:3000";
+ 
 
 const TIPO_COLORS = {
   evento: "#2E86C1",
@@ -64,38 +65,36 @@ export default function SearchBar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const executarBusca = useCallback(async (q) => {
-    if (q.trim().length < 1) {
-      setResults(null);
-      setAberto(false);
-      setErro(null);
-      return;
-    }
-
-    setLoading(true);
+const executarBusca = useCallback(async (termo) => {
+ 
+  if (!termo || termo.trim().length < 1) {
+    setResults(null);
+    setAberto(false);
     setErro(null);
+    return;
+  }
 
-    try {
-      const res = await fetch(
-        `${API_URL}/busca?q=${encodeURIComponent(q.trim())}`,
-        { headers: { "Content-Type": "application/json" } }
-      );
+  setLoading(true);
+  setErro(null);
 
-      if (!res.ok) {
-        throw new Error(`Erro ${res.status}: ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      setResults(data.dados || data);
-      setAberto(true);
-    } catch (err) {
-      console.error("Erro na busca:", err);
-      setErro("Não foi possível conectar ao servidor.");
-      setResults(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  try {
+    
+    const response = await api.get("/busca", {
+      params: { q: termo.trim() }
+    });
+ 
+    const data = response.data.dados || response.data;
+    
+    setResults(data);
+    setAberto(true);
+  } catch (err) {
+    console.error("Erro na busca:", err);
+    setErro("Não foi possível carregar os resultados.");
+    setResults(null);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     executarBusca(debouncedQuery);

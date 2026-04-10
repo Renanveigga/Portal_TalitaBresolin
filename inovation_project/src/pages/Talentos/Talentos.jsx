@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Linkedin, Github, Instagram, FileEarmarkPdf,
-  Heart, HeartFill, Share, BoxArrowUpRight,
+  Heart, HeartFill, Share, BoxArrowUpRight, Laptop, BarChartLineFill, EnvelopeFill, StarFill, PlusCircleFill
 } from "react-bootstrap-icons";
 import styles from "./Talentos.module.css";
 import { getTalentos } from "../../services/talentosService";
@@ -80,7 +80,7 @@ function TalentoCard({ talento, onAbrir }) {
             color:      isTI ? "#2E86C1" : "#F39C12",
           }}
         >
-          {isTI ? "💻 TI" : "📊 ADM"} · {talento.ano}º ano
+          {isTI ? <Laptop /> : <BarChartLineFill />} · {talento.ano} ano
         </span>
       </div>
  
@@ -316,13 +316,13 @@ export default function Talentos() {
     <div>
       <div className={styles.pageHeader}>
         <div>
-          <h2 className="page-title">🌟 Banco de Talentos</h2>
+          <h2 className="page-title"><StarFill /> Banco de Talentos</h2>
           <p className="page-subtitle">
             Conectando alunos do colégio ao mercado de trabalho.
           </p>
         </div>
         <button className={styles.btnCadastrar} onClick={() => setShowCadastro(true)}>
-          + Cadastrar meu perfil
+          <PlusCircleFill /> Cadastrar meu perfil
         </button>
       </div>
  
@@ -336,7 +336,7 @@ export default function Talentos() {
                   className={`${styles.filtroBtn} ${filtroCurso === c ? styles.filtroBtnActive : ""}`}
                   onClick={() => setFiltroCurso(c)}
                 >
-                  {c === "" ? "Todos" : c === "TI" ? "💻 TI" : "📊 ADM"}
+                 {c === "" ? "Todos" : c === "TI" ? <><Laptop /> TI</> : <><BarChartLineFill /> ADM</>}
                 </button>
               ))}
             </div>

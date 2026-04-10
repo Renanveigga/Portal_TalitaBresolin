@@ -1,3 +1,7 @@
+* {
+  ::-webkit-scrollbar { display: none; }
+}
+
 .loginWrapper {
   min-height: 100vh;
   display: flex;
@@ -160,6 +164,7 @@
   max-width: 960px;
   margin: 0 auto;
   width: 100%;
+  
 }
 
 .contentCard {

@@ -1,38 +1,41 @@
 import { useState } from "react";
 import { login } from "../../services/authService";
 import styles from "./Admin.module.css";
+import { LockFill } from "react-bootstrap-icons";
 
 export default function Login({ onLogin }) {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async () => {
-  setLoading(true);
-  try {
-    const response = await login(senha);
- 
-    console.log("Resposta do Login:", response.data);
- 
-    const tokenGerado = response.data.token || response.data.dados?.token;
-    
-    if (tokenGerado) {
-      localStorage.setItem("token", tokenGerado);
-      onLogin();  
-    } else {
-      setErro("Erro: Servidor não enviou o token de acesso.");
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const response = await login(senha);
+
+      console.log("Resposta do Login:", response.data);
+
+      const tokenGerado = response.data.token || response.data.dados?.token;
+
+      if (tokenGerado) {
+        localStorage.setItem("token", tokenGerado);
+        onLogin();
+      } else {
+        setErro("Erro: Servidor não enviou o token de acesso.");
+      }
+    } catch (err) {
+      setErro("Senha incorreta.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setErro("Senha incorreta.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className={styles.loginWrapper}>
       <div className={styles.loginCard}>
-        <div className={styles.loginIcon}>🔐</div>
+        <div className={styles.loginIcon}>
+          <LockFill />
+        </div>
         <h2 className={styles.loginTitle}>Painel Admin</h2>
         <p className={styles.loginSub}>Digite a senha para acessar</p>
 

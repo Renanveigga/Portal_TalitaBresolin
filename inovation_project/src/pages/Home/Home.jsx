@@ -6,7 +6,8 @@ import StatCard from "../../components/StatCard/StatCard";
 import FeedCard from "../../components/FeedCard/FeedCard";
 import { getAvisos } from "../../services/avisosService";
 import { getStats } from "../../services/statsService";
-import { getFeed } from "../../services/feedService";
+import { getFeed } from "../../services/feedService"; 
+import { JournalBookmark, Search, Clipboard, Mortarboard, House, ClipboardFill } from "react-bootstrap-icons";
 
 export default function Home() {
   const [avisos, setAvisos] = useState([]);
@@ -71,27 +72,27 @@ export default function Home() {
       {stats && (
         <div className={styles.statsGrid}>
           <StatCard
-            icon="📚"
+            icon=<JournalBookmark/>
             label="Livros no acervo"
             value={stats.livros?.total ?? 0}
             sub={`${stats.livros?.disponiveis ?? 0} disponíveis`}
             cor="#2E86C1"
           />
           <StatCard
-            icon="🔍"
+            icon=<Search/>
             label="Achados e Perdidos"
             value={stats.achados?.total ?? 0}
             sub={`${stats.achados?.pendentes ?? 0} aguardando`}
             cor="#E67E22"
           />
           <StatCard
-            icon="📋"
+            icon=<Clipboard/>
             label="Avisos publicados"
             value={stats.avisos?.total ?? 0}
             cor="#8E44AD"
           />
           <StatCard
-            icon="🎓"
+            icon=<Mortarboard/>
             label="Cursos técnicos"
             value={stats.cursos?.total ?? 0}
             sub={`${stats.cursos?.professores ?? 0} professores`}
@@ -105,13 +106,13 @@ export default function Home() {
           className={`${styles.tab} ${abaAtiva === "feed" ? styles.tabActive : ""}`}
           onClick={() => setAbaAtiva("feed")}
         >
-          🏠 Feed geral
+          <House/> Feed geral
         </button>
         <button
           className={`${styles.tab} ${abaAtiva === "avisos" ? styles.tabActive : ""}`}
           onClick={() => setAbaAtiva("avisos")}
         >
-          📋 Avisos
+          <ClipboardFill/> Avisos
         </button>
       </div>
 

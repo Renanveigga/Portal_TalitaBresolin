@@ -5,7 +5,7 @@ import { marked } from "marked";
 import { 
   CameraFill, Laptop, SuitcaseLgFill, LaptopFill, 
   StarFill, FileEarmarkRichtextFill, PatchCheckFill, 
-  EyeFill, PencilFill 
+  EyeFill, PencilFill, ArrowLeft 
 } from "react-bootstrap-icons";
 
 const HABILIDADES_TI = ["JavaScript", "Python", "React", "Node.js", "MySQL", "PHP", "Java", "Redes", "Hardware", "Linux", "CSS", "TypeScript", "Git", "Docker"];

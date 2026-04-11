@@ -236,28 +236,28 @@ function TalentoModal({ talento, onFechar }) {
               <div className={styles.modalContatos}>
                 {talento.email && (
                   <a href={`mailto:${talento.email}`} className={styles.contatoItem}>
-                    📧 <span>{talento.email}</span>
+                    <EnvelopeFill style={{ fontSize: "14px" }}/> <span>{talento.email}</span>
                   </a>
                 )}
                 {talento.linkedin && (
                   <a href={talento.linkedin} target="_blank" rel="noreferrer" className={styles.contatoItem}>
-                    <Linkedin size={14} /> <span>LinkedIn</span>
+                    <Linkedin style={{ fontSize: "14px" }} /> <span>LinkedIn</span>
                   </a>
                 )}
                 {talento.github && (
                   <a href={talento.github} target="_blank" rel="noreferrer" className={styles.contatoItem}>
-                    <Github size={14} /> <span>GitHub</span>
+                    <Github style={{ fontSize: "14px" }} /> <span>GitHub</span>
                   </a>
                 )}
                 {talento.instagram && (
                   <a href={talento.instagram} target="_blank" rel="noreferrer" className={styles.contatoItem}>
-                    <Instagram size={14} /> <span>Instagram</span>
+                    <Instagram style={{ fontSize: "14px" }} /> <span>Instagram</span>
                   </a>
                 )}
                 {talento.curriculo_url && (
                   <a href={`${API_URL}${talento.curriculo_url}`} target="_blank"
                     rel="noreferrer" className={styles.contatoItem}>
-                    <FileEarmarkPdf size={14} /> <span>Ver Currículo</span>
+                    <FileEarmarkPdf style={{ fontSize: "14px" }} /> <span>Ver Currículo</span>
                   </a>
                 )}
               </div>
@@ -316,7 +316,7 @@ export default function Talentos() {
     <div>
       <div className={styles.pageHeader}>
         <div>
-          <h2 className="page-title"><StarFill /> Banco de Talentos</h2>
+          <h2 className="page-title"><StarFill style={{ fontSize: "14px" }}/> Banco de Talentos</h2>
           <p className="page-subtitle">
             Conectando alunos do colégio ao mercado de trabalho.
           </p>

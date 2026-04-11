@@ -3,6 +3,7 @@ import styles from "./Library.module.css";
 import BookCard from "../../components/BookCard/BookCard";
 import { getLivros } from "../../services/livrosService";
 import { CATEGORIAS } from "../../data/categorias";
+import { Collection, Check2, XLg } from "react-bootstrap-icons";
 
 export default function Library() {
   const [livros, setLivros]         = useState([]);
@@ -52,7 +53,7 @@ export default function Library() {
 
   return (
     <div>
-      <h2 className="page-title">📚 Biblioteca</h2>
+      <h2 className="page-title"><Collection style={{ fontSize: "14px" }} /> Biblioteca</h2>
       <p className="page-subtitle">
         Consulte o acervo de livros e materiais pedagógicos disponíveis.
       </p>
@@ -84,8 +85,8 @@ export default function Library() {
           <div className={styles.filterBtns}>
             {[
               { value: "todos",      label: "Todos"        },
-              { value: "disponivel", label: "✓ Disponível" },
-              { value: "emprestado", label: "✗ Emprestado" },
+              { value: "disponivel", label: <><Check2 style={{ fontSize: "10px", marginRight: "4px" }}/>Disponível </> },
+              { value: "emprestado", label: <><XLg style={{ fontSize: "10px", marginRight: "4px" }}/>Emprestado </> },
             ].map((op) => (
               <button
                 key={op.value}

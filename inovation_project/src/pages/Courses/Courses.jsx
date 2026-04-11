@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./Courses.module.css";
 import ProfessorCard from "../../components/ProfessorCard/ProfessorCard";
 import { getCursos } from "../../services/cursosService";
+import { MortarboardFill } from "react-bootstrap-icons";
 
 export default function Courses() {
   const [cursos, setCursos] = useState([]);
@@ -28,7 +29,7 @@ export default function Courses() {
 
   return (
     <div>
-      <h2 className="page-title">🎓 Cursos Técnicos</h2>
+      <h2 className="page-title"><MortarboardFill style={{ fontSize: "14px" }}  /> Cursos Técnicos</h2>
       <p className="page-subtitle">
         Conheça os cursos técnicos oferecidos pela instituição.
       </p>

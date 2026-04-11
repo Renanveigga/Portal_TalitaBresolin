@@ -1,4 +1,5 @@
 import styles from "./ProfessorCard.module.css";
+import { MortarboardFill } from "react-bootstrap-icons";
 
 function getInitials(nome) {
   const parts = nome.split(" ");
@@ -21,7 +22,7 @@ export default function ProfessorCard({ professor, cor }) {
         <p className={styles.materia} style={{ color: cor }}>
           {professor.materia}
         </p>
-        <p className={styles.formacao}>🎓 {professor.form}</p>
+        <p className={styles.formacao}><MortarboardFill style={{ fontSize: "14px", marginRight: "4px" }} /> {professor.form}</p>
       </div>
 
     </div>

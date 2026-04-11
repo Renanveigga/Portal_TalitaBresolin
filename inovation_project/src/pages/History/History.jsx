@@ -1,10 +1,11 @@
 import styles from "./History.module.css";
 import { HISTORIAS } from "../../data/Mockdata";
+import { HourglassSplit} from "react-bootstrap-icons";
 
 export default function History() {
   return (
     <div>
-      <h2 className="page-title">🏛️ Nossa História</h2>
+      <h2 className="page-title"><HourglassSplit style={{ fontSize: "14px" }}/> Nossa História</h2>
       <p className="page-subtitle">
         Do passado ao futuro — conheça a trajetória do nosso colégio.
       </p>

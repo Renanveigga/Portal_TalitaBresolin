@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Trophy, Calendar2 } from 'react-bootstrap-icons';
 import styles from "./Esportes.module.css";
 import { getEsportes } from "../../services/esportesService";
+import { TrophyFill } from "react-bootstrap-icons";
 
 const API_URL = "http://localhost:3000";
 
@@ -47,7 +48,7 @@ export default function Esportes() {
     <div>
       <div className={styles.pageHeader}>
         <div>
-          <h2 className="page-title">🏆 Esportes</h2>
+          <h2 className="page-title"><TrophyFill style={{ fontSize: "14px" }} /> Esportes</h2>
           <p className="page-subtitle">
             Conquistas, campeonatos e eventos esportivos do colégio.
           </p>

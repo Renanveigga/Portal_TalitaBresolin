@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { GeoAlt, Clock } from "react-bootstrap-icons";
 import styles from "./Lost.module.css";
 import { getAchados } from "../../services/achadosService";
+import { Search } from "react-bootstrap-icons"; 
 
 const API_URL = "http://localhost:3000";
 
@@ -33,7 +34,7 @@ export default function Lost() {
     <div>
       <div className={styles.pageHeader}>
         <div>
-          <h2 className="page-title">🔍 Achados e Perdidos</h2>
+          <h2 className="page-title"><Search style={{ fontSize: "14px" }}/> Achados e Perdidos</h2>
           <p className="page-subtitle">
             Perdeu algo? Encontre seu item e dirija-se à sala indicada.
           </p>

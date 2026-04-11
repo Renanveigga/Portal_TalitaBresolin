@@ -3,7 +3,7 @@ import styles from "./Hero.module.css";
 export default function Hero() {
   return (
     <div className={styles.hero}>
-      <p className={styles.eyebrow}>Colégio Estadual</p>
+      <p className={styles.eyebrow}>Colégio Estadual Talita Bresolin</p>
       <h1 className={styles.title}>
         Portal da<br />Comunidade Escolar
       </h1>

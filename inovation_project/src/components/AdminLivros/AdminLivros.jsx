@@ -40,11 +40,12 @@ export default function AdminLivros() {
 
   const handleToggleDisponivel = async (id, statusAtual) => {
     try {
- 
-      await updateLivro(id, { disponivel: !Boolean(statusAtual) });
+      const novoStatus = !statusAtual;  
+      await updateLivro(id, { disponivel: novoStatus });
       carregar();
     } catch (err) {
-      alert("Erro ao atualizar status.");
+      console.error("Erro no Update:", err);
+      alert("Erro ao atualizar status. Você está logado como admin?");
     }
   };
 
@@ -144,7 +145,7 @@ export default function AdminLivros() {
                       onClick={() => handleDelete(l.id)}
                     >
                       Excluir
-                    </button>
+                    </button> 
                   </td>
                 </tr>
               );

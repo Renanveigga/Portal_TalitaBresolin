@@ -45,14 +45,17 @@ export const createLivro = async (req, res, next) => {
 export const updateLivro = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const [check] = await db.query("SELECT id FROM livros WHERE id = ?", [id]);
+ 
+    const cleanId = parseInt(id);
 
+    const [check] = await db.query("SELECT id FROM livros WHERE id = ?", [cleanId]);
     if (check.length === 0) return notFound(res, "Livro não encontrado.");
+ 
+    const disponivel = (req.body.disponivel === true || req.body.disponivel === "true") ? 1 : 0;
 
-    const disponivel = req.body.disponivel === true || req.body.disponivel === "true" ? 1 : 0;
-    await db.query("UPDATE livros SET disponivel = ? WHERE id = ?", [disponivel, id]);
+    await db.query("UPDATE livros SET disponivel = ? WHERE id = ?", [disponivel, cleanId]);
 
-    return ok(res, { mensagem: "Disponibilidade atualizada com sucesso." });
+    return ok(res, { mensagem: "Status atualizado com sucesso!", novoStatus: disponivel });
   } catch (err) {
     next(err);
   }

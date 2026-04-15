@@ -1,5 +1,16 @@
 import { useState } from "react";
 import styles from "./Admin.module.css";
+import { 
+  Clipboard, 
+  Book, 
+  Search, 
+  JournalBookmark, 
+  Star, 
+  Trophy, 
+  Gear,
+  BoxArrowRight 
+} from "react-bootstrap-icons";
+
 import AdminAvisos from "../../components/AdminAvisos/AdminAvisos";
 import AdminLivros from "../../components/AdminLivros/AdminLivros";
 import AdminAchados from "../../components/AdminAchados/AdminAchados";
@@ -8,12 +19,12 @@ import AdminTalentos from "../../components/AdminTalentos/AdminTalentos";
 import AdminEsportes from "../../components/AdminEsportes/AdminEsportes";
 
 const TABS = [
-  { id: "avisos",      label: "📋 Avisos"            },
-  { id: "livros",      label: "📚 Livros"             },
-  { id: "achados",     label: "🔍 Achados e Perdidos" },
-  { id: "emprestimos", label: "📖 Empréstimos"        },
-  { id: "talentos",    label: "🌟 Talentos"           },
-  { id: "esportes",    label: "🏆 Esportes"           },
+  { id: "avisos", label: "Avisos", icon: Clipboard },
+  { id: "livros", label: "Livros", icon: Book },
+  { id: "achados", label: "Achados e Perdidos", icon: Search },
+  { id: "emprestimos", label: "Empréstimos", icon: JournalBookmark },
+  { id: "talentos", label: "Talentos", icon: Star },
+  { id: "esportes", label: "Esportes", icon: Trophy },
 ];
 
 export default function Admin({ onLogout }) {
@@ -26,27 +37,33 @@ export default function Admin({ onLogout }) {
 
   return (
     <div className={styles.adminLayout}>
-
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.headerIcon}>⚙️</div>
+          <div className={styles.headerIcon}>
+            <Gear size={20} style={{ marginRight: '10px' }} />
+          </div>
           <span className={styles.headerTitle}>Painel Administrativo</span>
         </div>
         <button className={styles.btnLogout} onClick={handleLogout}>
+          <BoxArrowRight size={18} style={{ marginRight: '8px' }} />
           Sair
         </button>
       </header>
 
       <div className={styles.tabsBar}>
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            className={`${styles.tab} ${tab === t.id ? styles.activeTab : ""}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const IconComponent = t.icon;  
+          return (
+            <button
+              key={t.id}
+              className={`${styles.tab} ${tab === t.id ? styles.activeTab : ""}`}
+              onClick={() => setTab(t.id)}
+            >
+              <IconComponent size={18} style={{ marginRight: '8px' }} />
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className={styles.body}>
@@ -59,7 +76,6 @@ export default function Admin({ onLogout }) {
           {tab === "esportes" && <AdminEsportes />}
         </div>
       </div>
-
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getLivros, createLivro, updateLivro, deleteLivro } from "../../services/livrosService";
 import { CATEGORIAS } from "../../data/categorias";
 import styles from "./AdminLivros.module.css";
+import { Book } from "react-bootstrap-icons";
 
 export default function AdminLivros() {
   const [livros, setLivros] = useState([]);
@@ -63,7 +64,7 @@ export default function AdminLivros() {
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>📚 Gerenciar Acervo de Livros</h3>
+      <h3 className={styles.sectionTitle}><Book style={{ fontSize: "15px" }}/> Gerenciar Acervo de Livros</h3>
 
       <div className={styles.formCard}>
         <p className={styles.formLabel}>Adicionar novo livro</p>

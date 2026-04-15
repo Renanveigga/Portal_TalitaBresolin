@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { getAchados, createAchado, updateAchado, deleteAchado } from "../../services/achadosService";
 import styles from "./AdminAchados.module.css";
+import { 
+  Search, 
+  Camera, 
+  Image, 
+  PlusCircle, 
+  BoxSeam, 
+  GeoAlt, 
+  CheckCircle, 
+  ArrowCounterclockwise, 
+  Trash 
+} from "react-bootstrap-icons";
 
 const API_URL = "http://localhost:3000";
 
@@ -17,7 +28,6 @@ export default function AdminAchados() {
     setLoading(true);
     getAchados()
       .then((r) => {
- 
         const listaAchados = r.data?.dados || r.data || [];
         setAchados(listaAchados);
       })
@@ -62,7 +72,6 @@ export default function AdminAchados() {
 
   const handleRetirado = async (id, retiradoAtual) => {
     try {
- 
       await updateAchado(id, { retirado: !Boolean(retiradoAtual) });
       carregar();
     } catch (err) {
@@ -84,7 +93,10 @@ export default function AdminAchados() {
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>🔍 Gerenciar Achados e Perdidos</h3>
+      <h3 className={styles.sectionTitle}>
+        <Search size={14} style={{ marginRight: '8px' }}/> 
+        Gerenciar Achados e Perdidos
+      </h3>
 
       <div className={styles.formCard}>
         <p className={styles.formLabel}>Cadastrar novo item</p>
@@ -113,18 +125,25 @@ export default function AdminAchados() {
             id="fotoInput"
           />
           <label htmlFor="fotoInput" className={styles.fileLabel}>
-            {preview ? "🖼️ Trocar foto" : "📷 Adicionar foto (opcional)"}
+            {preview ? (
+              <><Image size={14} style={{ marginRight: '8px' }} /> Trocar foto</>
+            ) : (
+              <><Camera size={14} style={{ marginRight: '8px' }} /> Adicionar foto (opcional)</>
+            )}
           </label>
           {preview && (
             <div className={styles.previewContainer}>
                <img src={preview} alt="preview" className={styles.preview} />
-               <button className={styles.btnRemoveFoto} onClick={() => {setFoto(null); setPreview(null); fileRef.current.value="";}}>Remover</button>
+               <button className={styles.btnRemoveFoto} onClick={() => {setFoto(null); setPreview(null); fileRef.current.value="";}}>
+                 <Trash size={12} /> Remover
+               </button>
             </div>
           )}
         </div>
 
         <button className={styles.btnAdd} onClick={handleCreate}>
-          + Cadastrar Item
+          <PlusCircle size={14} style={{ marginRight: '8px' }} />
+          Cadastrar Item
         </button>
       </div>
 
@@ -145,13 +164,17 @@ export default function AdminAchados() {
                   className={styles.foto}
                 />
               ) : (
-                <div className={styles.semFoto}>📦</div>
+                <div className={styles.semFoto}>
+                  <BoxSeam size={24} color="#ccc" />
+                </div>
               )}
             </div>
 
             <div className={styles.itemInfo}>
               <p className={styles.itemTitle}>{a.descricao}</p>
-              <p className={styles.itemMeta}>📍 {a.sala}</p>
+              <p className={styles.itemMeta}>
+                <GeoAlt size={12} style={{ marginRight: '4px' }} /> {a.sala}
+              </p>
               {a.retirado && <span className={styles.badgeRetirado}>ITEM ENTREGUE</span>}
             </div>
 
@@ -160,9 +183,14 @@ export default function AdminAchados() {
                 className={`${styles.btnStatus} ${a.retirado ? styles.retirado : styles.pendente}`}
                 onClick={() => handleRetirado(a.id, a.retirado)}
               >
-                {a.retirado ? "Reabrir" : "Marcar retirado"}
+                {a.retirado ? (
+                  <><ArrowCounterclockwise size={14} style={{ marginRight: '5px' }} /> Reabrir</>
+                ) : (
+                  <><CheckCircle size={14} style={{ marginRight: '5px' }} /> Marcar retirado</>
+                )}
               </button>
               <button className={styles.btnDelete} onClick={() => handleDelete(a.id)}>
+                <Trash size={14} style={{ marginRight: '5px' }} />
                 Excluir
               </button>
             </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getEmprestimos, createEmprestimo, devolverLivro, deleteEmprestimo } from "../../services/emprestimosService";
 import { getLivros } from "../../services/livrosService";
 import styles from "./AdminEmprestimos.module.css";
+import { JournalBookmark} from "react-bootstrap-icons"
 
 export default function AdminEmprestimos() {
   const [emprestimos, setEmprestimos] = useState([]);
@@ -78,7 +79,7 @@ export default function AdminEmprestimos() {
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>📖 Controle de Biblioteca</h3>
+      <h3 className={styles.sectionTitle}><JournalBookmark size={14} /> Controle de Biblioteca</h3>
 
       <div className={styles.formCard}>
         <p className={styles.formLabel}>Registrar novo empréstimo</p>

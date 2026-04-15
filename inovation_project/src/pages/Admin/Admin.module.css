@@ -151,6 +151,11 @@
   margin-bottom: -1px;
 }
 
+.tab svg{
+  width: 14px;
+  height: 14px;
+}
+
 .tab:hover { color: var(--color-text-dark); }
 
 .activeTab {

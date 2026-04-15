@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAvisos, createAviso, deleteAviso } from "../../services/avisosService";
 import styles from "./AdminAvisos.module.css";
+import { Clipboard } from "react-bootstrap-icons";
 
 export default function AdminAvisos() {
   const [avisos, setAvisos] = useState([]);
@@ -49,7 +50,7 @@ export default function AdminAvisos() {
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.sectionTitle}>📋 Gerenciar Avisos</h3>
+      <h3 className={styles.sectionTitle}><Clipboard style={{ fontSize: "14px" }}/> Gerenciar Avisos</h3>
  
       <div className={styles.form}>
         <input

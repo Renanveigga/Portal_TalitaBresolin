@@ -173,3 +173,23 @@
 }
 
 .btnDelete:hover { background: var(--color-danger-faint); }
+ 
+.fileLabel svg {
+  margin-right: 8px;
+}
+ 
+.sectionTitle svg {
+  margin-right: 10px;
+}
+ 
+.itemMeta svg {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.fileLabel {
+  display: inline-flex;  
+  align-items: center;   
+  justify-content: center;
+   
+}

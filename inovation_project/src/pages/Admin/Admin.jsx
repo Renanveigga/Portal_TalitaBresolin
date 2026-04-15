@@ -40,7 +40,7 @@ export default function Admin({ onLogout }) {
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <div className={styles.headerIcon}>
-            <Gear size={20} style={{ marginRight: '10px' }} />
+            <Gear size={20} />
           </div>
           <span className={styles.headerTitle}>Painel Administrativo</span>
         </div>

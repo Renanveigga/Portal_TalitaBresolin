@@ -44,8 +44,8 @@ export default function Admin({ onLogout }) {
           </div>
           <span className={styles.headerTitle}>Painel Administrativo</span>
         </div>
-        <button className={styles.btnLogout} onClick={handleLogout}>
-          <BoxArrowRight size={18} style={{ marginRight: '8px' }} />
+        <button className={styles.btnLogout} onClick={handleLogout} style={{ display: 'flex', alignItems: 'center' }}>
+          <BoxArrowRight size={15} style={{  marginRight: '8px' }} />
           Sair
         </button>
       </header>

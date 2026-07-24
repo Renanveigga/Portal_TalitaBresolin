@@ -27,7 +27,7 @@ const imagemFilter = (req, file, cb) => {
     const permitidos = ["image/jpeg", "image/png", "image/webp"];
     return permitidos.includes(file.mimetype)
       ? cb(null, true)
-      : cb(new Error("Apenas imagens."), false);
+      : cb(new Error("Apenas imagens (JPEG, PNG, WEBP)."), false);
   }
   if (file.fieldname === "curriculo") {
     return file.mimetype === "application/pdf"
@@ -46,10 +46,11 @@ const upload = multer({
   { name: "curriculo", maxCount: 1 },
 ]);
 
+ 
 const schemaTalento = {
   nome:        { required: true, maxLength: 255 },
   curso:       { required: true, enum: ["TI", "ADM"] },
-  ano:         { required: true, enum: ["1º", "2º", "3º"] },
+  ano:         { required: true, enum: ["1", "2", "3", "1º", "2º", "3º"] },
   habilidades: { required: true, maxLength: 1000 },
 };
 
@@ -58,9 +59,25 @@ const schemaStatus = {
 };
 
 const router = Router();
+
 router.get("/",       getTalentos);
 router.get("/admin",  protegerAdmin, getTalentosAdmin);
-router.post("/",      upload, validate(schemaTalento), createTalento);
+
+ 
+router.post(
+  "/",
+  upload,
+  (req, res, next) => {
+    
+    if (req.body && req.body.ano) {
+      req.body.ano = req.body.ano.toString().trim();
+    }
+    next();
+  },
+  validate(schemaTalento),
+  createTalento
+);
+
 router.put("/:id",    protegerAdmin, validateId, validate(schemaStatus), updateStatus);
 router.delete("/:id", protegerAdmin, validateId, deleteTalento);
 

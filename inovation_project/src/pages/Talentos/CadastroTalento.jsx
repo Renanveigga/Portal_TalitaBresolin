@@ -17,24 +17,12 @@ const REDES = [
   { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", icon: <CameraFill /> },
 ];
 
- 
-const ANOS_OPCOES = [
-  { value: "1", label: "1º" },
-  { value: "2", label: "2º" },
-  { value: "3", label: "3º" },
-];
-
 export default function CadastroTalento({ onVoltar }) {
   const [form, setForm] = useState({
-    nome: "", 
-    curso: "TI", 
-    ano: "1", 
+    nome: "", curso: "TI", ano: "1º",
     habilidades: [],
     habPersonalizada: "",
-    linkedin: "", 
-    github: "", 
-    instagram: "", 
-    email: "",
+    linkedin: "", github: "", instagram: "", email: "",
     bio: "",
   });
 
@@ -109,6 +97,7 @@ export default function CadastroTalento({ onVoltar }) {
       console.log("Sucesso:", response.data);
       setEnviado(true);
     } catch (err) {
+ 
       console.error("Erro completo do Axios:", err);
       const mensagemErro = err.response?.data?.mensagem || err.response?.data?.error || "Erro interno no servidor (500).";
       setErro(mensagemErro);
@@ -214,14 +203,14 @@ export default function CadastroTalento({ onVoltar }) {
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>Ano *</label>
               <div className={styles.cursoBtns}>
-                {ANOS_OPCOES.map((item) => (
+                {["1º", "2º", "3º"].map((a) => (
                   <button 
-                    key={item.value}
+                    key={a}
                     type="button"
-                    className={`${styles.cursoBtn} ${form.ano === item.value ? styles.cursoBtnActive : ""}`}
-                    onClick={() => setForm({ ...form, ano: item.value })}
+                    className={`${styles.cursoBtn} ${form.ano === a ? styles.cursoBtnActive : ""}`}
+                    onClick={() => setForm({ ...form, ano: a })}
                   >
-                    {item.label}
+                    {a}
                   </button>
                 ))}
               </div>

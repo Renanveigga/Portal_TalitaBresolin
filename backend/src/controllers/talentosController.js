@@ -6,15 +6,17 @@ import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
 
 const { window } = new JSDOM("");
-const purify     = DOMPurify(window);
- 
+const purify = DOMPurify(window);
+
 marked.setOptions({ gfm: true, breaks: true });
 
+// Função síncrona segura para renderizar o Markdown da bio
 function renderBio(bio) {
   if (!bio) return null;
-  const html = marked.parse(bio);
+  // parseInline é síncrono e não retorna Promise
+  const html = marked.parseInline(String(bio));
   return purify.sanitize(html, {
-    ALLOWED_TAGS: ["p","strong","em","ul","ol","li","a","br","h3","h4","blockquote","code"],
+    ALLOWED_TAGS: ["p", "strong", "em", "ul", "ol", "li", "a", "br", "h3", "h4", "blockquote", "code"],
     ALLOWED_ATTR: ["href", "target", "rel"],
   });
 }
@@ -23,15 +25,14 @@ export const getTalentos = async (req, res, next) => {
   try {
     const { curso, habilidade, ordem } = req.query;
     const params = [];
- 
-let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em FROM talentos WHERE 1=1";
+
+    let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em FROM talentos WHERE 1=1";
 
     if (curso && ["TI", "ADM"].includes(curso)) {
       query += " AND curso = ?";
       params.push(curso);
     }
     if (habilidade) {
- 
       query += " AND habilidades LIKE ?";
       params.push(`%${String(habilidade).slice(0, 100)}%`);
     }
@@ -68,24 +69,22 @@ export const getTalentosAdmin = async (req, res, next) => {
   }
 };
 
- export const createTalento = async (req, res, next) => {
+export const createTalento = async (req, res, next) => {
   try {
- 
     console.log("Dados recebidos no Body:", req.body);
     console.log("Arquivos recebidos:", req.files);
 
- 
     const nome = sanitize(req.body.nome || "");
     const curso = sanitize(req.body.curso || "");
     const ano = sanitize(req.body.ano || "");
     const habilidades = sanitize(req.body.habilidades || "");
- 
+
     const linkedin = req.body.linkedin ? sanitize(req.body.linkedin) : null;
     const github = req.body.github ? sanitize(req.body.github) : null;
     const instagram = req.body.instagram ? sanitize(req.body.instagram) : null;
     const email = req.body.email ? sanitize(req.body.email) : null;
     const bio = req.body.bio ? String(req.body.bio).slice(0, 5000) : null;
- 
+
     const foto_url = req.files?.foto?.[0] 
       ? `/uploads/fotos-perfil/${req.files.foto[0].filename}` 
       : null;
@@ -93,7 +92,7 @@ export const getTalentosAdmin = async (req, res, next) => {
     const curriculo_url = req.files?.curriculo?.[0] 
       ? `/uploads/curriculos/${req.files.curriculo[0].filename}` 
       : null;
- 
+
     const query = `
       INSERT INTO talentos 
       (nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url) 
@@ -107,12 +106,14 @@ export const getTalentosAdmin = async (req, res, next) => {
     return created(res, { id: result.insertId, mensagem: "Perfil enviado com sucesso!" });
 
   } catch (err) {
- 
     console.error("ERRO CRÍTICO NO BACKEND:", err);
     
-  
     if (err.code === 'ER_BAD_FIELD_ERROR') {
-        return res.status(500).json({ mensagem: "Erro na estrutura do banco de dados." });
+      return res.status(500).json({ mensagem: "Erro na estrutura do banco de dados." });
+    }
+
+    if (err.code === 'WARN_DATA_TRUNCATED' || err.errno === 1265) {
+      return res.status(400).json({ mensagem: "Formato do campo 'ano' ou outro atributo incompatível com o banco." });
     }
     
     next(err);
@@ -121,7 +122,7 @@ export const getTalentosAdmin = async (req, res, next) => {
 
 export const updateStatus = async (req, res, next) => {
   try {
-    const { id }     = req.params;
+    const { id } = req.params;
     const { status } = req.body;
 
     const validos = ["aprovado", "reprovado", "pendente"];

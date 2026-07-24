@@ -19,10 +19,15 @@ const REDES = [
 
 export default function CadastroTalento({ onVoltar }) {
   const [form, setForm] = useState({
-    nome: "", curso: "TI", ano: "1º",
+    nome: "", 
+    curso: "TI", 
+    ano: "1º",
     habilidades: [],
     habPersonalizada: "",
-    linkedin: "", github: "", instagram: "", email: "",
+    linkedin: "", 
+    github: "", 
+    instagram: "", 
+    email: "",
     bio: "",
   });
 
@@ -68,8 +73,14 @@ export default function CadastroTalento({ onVoltar }) {
   const handleEnviar = async (e) => {
     if (e) e.preventDefault();
     
-    if (!form.nome || form.habilidades.length === 0) {
-      setErro("Preencha o nome e selecione ao menos uma habilidade.");
+    // Validação no Front-End antes de enviar ao servidor
+    if (!form.nome.trim()) {
+      setErro("Por favor, preencha o seu nome completo.");
+      return;
+    }
+
+    if (form.habilidades.length === 0) {
+      setErro("Selecione ao menos uma habilidade.");
       return;
     }
 
@@ -78,18 +89,21 @@ export default function CadastroTalento({ onVoltar }) {
 
     try {
       const formData = new FormData();
- 
+
+      // 1. ANEXAR CAMPOS DE TEXTO OBRIGATÓRIOS (PRIMEIRO PARA O MULTER LER CORRETAMENTE)
       formData.append("nome", form.nome.trim());
       formData.append("curso", form.curso);
       formData.append("ano", form.ano);
       formData.append("habilidades", form.habilidades.join(", "));
- 
-      if (form.linkedin) formData.append("linkedin", form.linkedin.trim());
-      if (form.github) formData.append("github", form.github.trim());
-      if (form.instagram) formData.append("instagram", form.instagram.trim());
-      if (form.email) formData.append("email", form.email.trim());
-      if (form.bio) formData.append("bio", form.bio);
- 
+
+      // 2. ANEXAR CAMPOS OPCIONAIS SOMENTE SE TIVEREM VALOR (evita enviar "" vazios)
+      if (form.linkedin.trim()) formData.append("linkedin", form.linkedin.trim());
+      if (form.github.trim()) formData.append("github", form.github.trim());
+      if (form.instagram.trim()) formData.append("instagram", form.instagram.trim());
+      if (form.email.trim()) formData.append("email", form.email.trim());
+      if (form.bio.trim()) formData.append("bio", form.bio.trim());
+
+      // 3. ANEXAR OS ARQUIVOS
       if (foto) formData.append("foto", foto);
       if (curriculo) formData.append("curriculo", curriculo);
 
@@ -97,9 +111,8 @@ export default function CadastroTalento({ onVoltar }) {
       console.log("Sucesso:", response.data);
       setEnviado(true);
     } catch (err) {
- 
       console.error("Erro completo do Axios:", err);
-      const mensagemErro = err.response?.data?.mensagem || err.response?.data?.error || "Erro interno no servidor (500).";
+      const mensagemErro = err.response?.data?.mensagem || err.response?.data?.error || err.response?.data?.erro || "Erro na validação do cadastro (400/500).";
       setErro(mensagemErro);
     } finally {
       setLoading(false);
@@ -132,8 +145,9 @@ export default function CadastroTalento({ onVoltar }) {
         Preencha suas informações para aparecer no Banco de Talentos.
       </p>
 
-      <div className={styles.cadastroGrid}>
- 
+      <form onSubmit={handleEnviar} className={styles.cadastroGrid}>
+
+        {/* Coluna de Fotos e Arquivos */}
         <div className={styles.fotoCol}>
           <div className={styles.fotoUpload} onClick={() => fotoRef.current.click()}>
             {fotoPreview ? (
@@ -171,7 +185,8 @@ export default function CadastroTalento({ onVoltar }) {
             onChange={(e) => setCurriculo(e.target.files[0] || null)}
           />
         </div>
- 
+
+        {/* Coluna de Form Informações */}
         <div className={styles.dadosCol}>
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabel}>Nome completo *</label>
@@ -180,6 +195,7 @@ export default function CadastroTalento({ onVoltar }) {
               placeholder="Seu nome completo"
               value={form.nome} 
               onChange={(e) => setForm({ ...form, nome: e.target.value })} 
+              required
             />
           </div>
 
@@ -241,7 +257,12 @@ export default function CadastroTalento({ onVoltar }) {
                 placeholder="Ex: Photoshop, Inglês..."
                 value={form.habPersonalizada}
                 onChange={(e) => setForm({ ...form, habPersonalizada: e.target.value })}
-                onKeyDown={(e) => e.key === "Enter" && addHabPersonalizada()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addHabPersonalizada();
+                  }
+                }}
               />
               <button type="button" className={styles.btnAddHab} onClick={addHabPersonalizada}>
                 + Adicionar
@@ -328,15 +349,14 @@ export default function CadastroTalento({ onVoltar }) {
           </div>
 
           <button
-            type="button"
+            type="submit"
             className={styles.btnEnviarCadastro}
-            onClick={handleEnviar}
             disabled={loading}
           >
             {loading ? "Enviando..." : "Enviar para aprovação"}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

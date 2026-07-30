@@ -1,6 +1,8 @@
 import db from "../config/db.js";
 import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
+ 
+const BASE_URL = process.env.BASE_URL || "https://portal-talitabresolin.onrender.com";
 
 export const getAchados = async (req, res, next) => {
   try {
@@ -30,7 +32,8 @@ export const createAchado = async (req, res, next) => {
   try {
     const descricao = sanitize(req.body.descricao);
     const sala      = sanitize(req.body.sala);
-    const foto_url  = req.file ? `/uploads/${req.file.filename}` : null;
+  
+    const foto_url  = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
 
     const [result] = await db.query(
       "INSERT INTO achados_perdidos (descricao, sala, foto_url) VALUES (?, ?, ?)",

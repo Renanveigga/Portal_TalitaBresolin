@@ -12,17 +12,29 @@ import {
   ArrowCounterclockwise, 
   Trash 
 } from "react-bootstrap-icons";
+ 
+const BASE_URL = "https://portal-talitabresolin.onrender.com";
 
-const API_URL = "http://localhost:3000";
+ 
+function formatImageUrl(url) {
+  if (!url) return null;
+  if (url.includes("localhost:3000")) {
+    return url.replace("http://localhost:3000", BASE_URL);
+  }
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
 export default function AdminAchados() {
-  const [achados, setAchados] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [achados, setAchados]     = useState([]);
+  const [loading, setLoading]     = useState(true);
   const [descricao, setDescricao] = useState("");
-  const [sala, setSala] = useState("");
-  const [foto, setFoto] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const fileRef = useRef();
+  const [sala, setSala]           = useState("");
+  const [foto, setFoto]           = useState(null);
+  const [preview, setPreview]     = useState(null);
+  const fileRef                   = useRef();
 
   const carregar = () => {
     setLoading(true);
@@ -31,7 +43,7 @@ export default function AdminAchados() {
         const listaAchados = r.data?.dados || r.data || [];
         setAchados(listaAchados);
       })
-      .catch(err => console.error("Erro ao carregar achados:", err))
+      .catch((err) => console.error("Erro ao carregar achados:", err))
       .finally(() => setLoading(false));
   };
 
@@ -54,18 +66,22 @@ export default function AdminAchados() {
       const formData = new FormData();
       formData.append("descricao", descricao);
       formData.append("sala", sala);
-      if (foto) formData.append("foto", foto);
+      if (foto) {
+        formData.append("foto", foto);
+        formData.append("foto_url", foto);  
+      }
 
       await createAchado(formData);
- 
+
       setDescricao("");
       setSala("");
       setFoto(null);
       setPreview(null);
       if (fileRef.current) fileRef.current.value = "";
-      
+
       carregar();
     } catch (err) {
+      console.error("Erro ao cadastrar:", err);
       alert("Erro ao cadastrar item.");
     }
   };
@@ -88,7 +104,7 @@ export default function AdminAchados() {
       alert("Erro ao excluir item.");
     }
   };
- 
+
   const listaSegura = Array.isArray(achados) ? achados : [];
 
   return (
@@ -149,53 +165,57 @@ export default function AdminAchados() {
 
       <div className={styles.list}>
         {loading && <p>Carregando itens...</p>}
-        
+
         {!loading && listaSegura.length === 0 && (
           <p className={styles.empty}>Nenhum item registrado.</p>
         )}
 
-        {listaSegura.map((a) => (
-          <div key={a.id} className={`${styles.item} ${a.retirado ? styles.itemRetirado : ""}`}>
-            <div className={styles.itemFoto}>
-              {a.foto_url ? (
-                <img
-                  src={`${API_URL}${a.foto_url}`}
-                  alt={a.descricao}
-                  className={styles.foto}
-                />
-              ) : (
-                <div className={styles.semFoto}>
-                  <BoxSeam size={24} color="#ccc" />
-                </div>
-              )}
-            </div>
+        {listaSegura.map((a) => {
+          const fotoUrlFormatada = formatImageUrl(a.foto_url);
 
-            <div className={styles.itemInfo}>
-              <p className={styles.itemTitle}>{a.descricao}</p>
-              <p className={styles.itemMeta}>
-                <GeoAlt size={12} style={{ marginRight: '4px' }} /> {a.sala}
-              </p>
-              {a.retirado && <span className={styles.badgeRetirado}>ITEM ENTREGUE</span>}
-            </div>
-
-            <div className={styles.itemActions}>
-              <button
-                className={`${styles.btnStatus} ${a.retirado ? styles.retirado : styles.pendente}`}
-                onClick={() => handleRetirado(a.id, a.retirado)}
-              >
-                {a.retirado ? (
-                  <><ArrowCounterclockwise size={14} style={{ marginRight: '5px' }} /> Reabrir</>
+          return (
+            <div key={a.id} className={`${styles.item} ${a.retirado ? styles.itemRetirado : ""}`}>
+              <div className={styles.itemFoto}>
+                {fotoUrlFormatada ? (
+                  <img
+                    src={fotoUrlFormatada}
+                    alt={a.descricao}
+                    className={styles.foto}
+                  />
                 ) : (
-                  <><CheckCircle size={14} style={{ marginRight: '5px' }} /> Marcar retirado</>
+                  <div className={styles.semFoto}>
+                    <BoxSeam size={24} color="#ccc" />
+                  </div>
                 )}
-              </button>
-              <button className={styles.btnDelete} onClick={() => handleDelete(a.id)}>
-                <Trash size={14} style={{ marginRight: '5px' }} />
-                Excluir
-              </button>
+              </div>
+
+              <div className={styles.itemInfo}>
+                <p className={styles.itemTitle}>{a.descricao}</p>
+                <p className={styles.itemMeta}>
+                  <GeoAlt size={12} style={{ marginRight: '4px' }} /> {a.sala}
+                </p>
+                {a.retirado && <span className={styles.badgeRetirado}>ITEM ENTREGUE</span>}
+              </div>
+
+              <div className={styles.itemActions}>
+                <button
+                  className={`${styles.btnStatus} ${a.retirado ? styles.retirado : styles.pendente}`}
+                  onClick={() => handleRetirado(a.id, a.retirado)}
+                >
+                  {a.retirado ? (
+                    <><ArrowCounterclockwise size={14} style={{ marginRight: '5px' }} /> Reabrir</>
+                  ) : (
+                    <><CheckCircle size={14} style={{ marginRight: '5px' }} /> Marcar retirado</>
+                  )}
+                </button>
+                <button className={styles.btnDelete} onClick={() => handleDelete(a.id)}>
+                  <Trash size={14} style={{ marginRight: '5px' }} />
+                  Excluir
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

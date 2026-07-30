@@ -17,10 +17,10 @@ const TIPO_COLORS = {
 
 const FONTE_CONFIG = {
   aviso:   { label: "Coordenação",        icon: <Megaphone size={14} />,  cor: "#8E44AD" },
-  livro:   { label: "Biblioteca",        icon: <Book size={14} />,       cor: "#2E86C1" },
-  achado:  { label: "Achados & Perdidos",icon: <Search size={14} />,     cor: "#E67E22" },
+  livro:   { label: "Biblioteca",        icon: <Book size={14} />,     cor: "#2E86C1" },
+  achado:  { label: "Achados & Perdidos",icon: <Search size={14} />,    cor: "#E67E22" },
   talento: { label: "Banco de Talentos", icon: "🌟",                     cor: "#27AE60" },
-  esporte: { label: "Esportes",          icon: <Trophy size={14} />,     cor: "#F1C40F" },
+  esporte: { label: "Esportes",          icon: <Trophy size={14} />,    cor: "#F1C40F" },
 };
 
 const ROTAS = {
@@ -76,7 +76,9 @@ export default function FeedCard({ item }) {
     navigator.clipboard?.writeText(window.location.origin + ROTAS[item.tipo_feed]);
   };
 
-  const fotoUrlFormatada = formatImageUrl(item.foto_url);
+  // Verifica todas as variações possíveis do nome da propriedade da imagem na API
+  const rawFoto = item.foto_url || item.foto || item.imagem || item.imagem_url;
+  const fotoUrlFormatada = formatImageUrl(rawFoto);
 
   return (
     <div className={styles.post}>

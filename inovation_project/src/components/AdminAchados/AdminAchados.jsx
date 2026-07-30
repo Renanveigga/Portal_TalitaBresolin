@@ -139,8 +139,11 @@ export default function AdminAchados() {
 
       carregar();
     } catch (err) {
-      console.error("Erro ao cadastrar:", err);
-      alert("Erro ao cadastrar item.");
+       
+      console.error("Detalhes do Erro:", err.response?.data);
+       
+      const mensagemErro = err.response?.data?.erro || "Erro ao cadastrar item.";
+      alert(`Erro: ${mensagemErro}`);
     }
   };
 

@@ -5,8 +5,8 @@ import {
   Trophy, Search, Book, Megaphone, GeoAlt
 } from "react-bootstrap-icons";
 import styles from "./FeedCard.module.css";
-
-const API_URL = "http://localhost:3000";
+ 
+const BASE_URL = "https://portal-talitabresolin.onrender.com";
 
 const TIPO_COLORS = {
   evento:   "#2E86C1",
@@ -16,11 +16,11 @@ const TIPO_COLORS = {
 };
 
 const FONTE_CONFIG = {
-  aviso:   { label: "Coordenação",       icon: <Megaphone size={14} />,  cor: "#8E44AD" },
-  livro:   { label: "Biblioteca",        icon: <Book size={14} />,        cor: "#2E86C1" },
-  achado:  { label: "Achados & Perdidos",icon: <Search size={14} />,      cor: "#E67E22" },
-  talento: { label: "Banco de Talentos", icon: "🌟",                      cor: "#27AE60" },
-  esporte: { label: "Esportes",          icon: <Trophy size={14} />,      cor: "#F1C40F" },
+  aviso:   { label: "Coordenação",        icon: <Megaphone size={14} />,  cor: "#8E44AD" },
+  livro:   { label: "Biblioteca",        icon: <Book size={14} />,       cor: "#2E86C1" },
+  achado:  { label: "Achados & Perdidos",icon: <Search size={14} />,     cor: "#E67E22" },
+  talento: { label: "Banco de Talentos", icon: "🌟",                     cor: "#27AE60" },
+  esporte: { label: "Esportes",          icon: <Trophy size={14} />,     cor: "#F1C40F" },
 };
 
 const ROTAS = {
@@ -47,6 +47,20 @@ function getInitials(nome = "") {
   const p = nome.split(" ");
   return (p[0]?.[0] ?? "") + (p[1]?.[0] ?? "");
 }
+ 
+function formatImageUrl(url) {
+  if (!url) return null;
+  
+  if (url.includes("localhost:3000")) {
+    return url.replace("http://localhost:3000", BASE_URL);
+  }
+  
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+ 
+  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
 
 export default function FeedCard({ item }) {
   const navigate = useNavigate();
@@ -57,7 +71,7 @@ export default function FeedCard({ item }) {
   const handleLike = (e) => {
     e.stopPropagation();
     setLiked((p) => !p);
-    setLikes((p) => liked ? p - 1 : p + 1);
+    setLikes((p) => (liked ? p - 1 : p + 1));
   };
 
   const handleShare = (e) => {
@@ -65,7 +79,7 @@ export default function FeedCard({ item }) {
     navigator.clipboard?.writeText(window.location.origin + ROTAS[item.tipo_feed]);
   };
 
-  const hasImage = item.foto_url;
+  const fotoUrlFormatada = formatImageUrl(item.foto_url);
 
   return (
     <div className={styles.post}>
@@ -98,13 +112,13 @@ export default function FeedCard({ item }) {
         )}
       </div>
 
-      {hasImage && (
+      {fotoUrlFormatada && (
         <div className={styles.postImage}>
-          <img src={`${API_URL}${item.foto_url}`} alt={item.titulo} className={styles.postImg} />
+          <img src={fotoUrlFormatada} alt={item.titulo} className={styles.postImg} />
         </div>
       )}
 
-      {!hasImage && (
+      {!fotoUrlFormatada && (
         <div className={styles.postBody}
           style={{ background: fonte.cor + "11", borderLeft: `3px solid ${fonte.cor}` }}>
           {item.tipo_feed === "talento" ? (
@@ -162,7 +176,7 @@ export default function FeedCard({ item }) {
         </div>
 
         <div className={styles.postDesc}>
-          {hasImage && <p className={styles.postDescTitle}>{item.titulo}</p>}
+          {fotoUrlFormatada && <p className={styles.postDescTitle}>{item.titulo}</p>}
           {item.descricao && (
             <p className={styles.postDescText}>
               {item.descricao?.length > 100

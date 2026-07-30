@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 import authRouter from "./routes/auth.js";
@@ -21,8 +22,7 @@ import esportesRouter from "./routes/esportes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 
 dotenv.config();
-
-// Validação de variáveis de ambiente obrigatórias
+ 
 const ENV_REQUIRED = ["DB_HOST", "DB_USER", "DB_PASS", "DB_NAME", "JWT_SECRET", "ADMIN_PASSWORD"];
 for (const varName of ENV_REQUIRED) {
   if (!process.env[varName]) {
@@ -33,21 +33,24 @@ for (const varName of ENV_REQUIRED) {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+ 
+const uploadsDir = path.resolve("uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set("trust proxy", 1);
-
-// Configuração do Helmet (liberando imagens para cross-origin)
+ 
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginEmbedderPolicy: false,
   })
 );
-
-// Permissões de CORS
+ 
 const allowedOrigins = [
   process.env.CORS_ORIGIN,
   "http://localhost:5173",
@@ -66,8 +69,7 @@ app.use(
     credentials: true,
   })
 );
-
-// Rate Limiters
+ 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === "development" ? 1000 : 100,
@@ -82,31 +84,27 @@ const loginLimiter = rateLimit({
   max: 10,
   message: { sucesso: false, erro: "Muitas tentativas de login. Aguarde 15 minutos." },
 });
-
-// Parsers
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true, limit: "1mb" }));
-
-// Servir arquivos estáticos da pasta /uploads com permissão total de acesso
+ 
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+ 
 app.use(
   "/uploads",
-  express.static(path.join(__dirname, "uploads"), {
+  express.static(uploadsDir, {
     setHeaders: (res) => {
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
   })
 );
-
-// Rota raiz de teste
+ 
 app.get("/", (req, res) => {
   res.json({
     sucesso: true,
     dados: { mensagem: "API do Portal Escolar funcionando!", versao: "2.0.0" },
   });
 });
-
-// Rotas do sistema
+  
 app.use("/auth", loginLimiter, authRouter);
 app.use("/avisos", avisosRouter);
 app.use("/livros", livrosRouter);
@@ -118,8 +116,7 @@ app.use("/emprestimos", emprestimosRouter);
 app.use("/talentos", talentosRouter);
 app.use("/feed", feedRouter);
 app.use("/esportes", esportesRouter);
-
-// Middlewares de erro
+ 
 app.use(notFoundHandler);
 app.use(errorHandler);
 

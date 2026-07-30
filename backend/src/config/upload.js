@@ -2,10 +2,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
-const EXTENSOES_VALIDAS = [".jpg", ".jpeg", ".png", ".webp"];
-
- 
 const uploadDir = path.resolve("uploads");
 
 if (!fs.existsSync(uploadDir)) {
@@ -24,16 +20,11 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
-
-  const tipoValido = TIPOS_PERMITIDOS.includes(file.mimetype);
-  const extensaoValida = EXTENSOES_VALIDAS.includes(ext);
-
-  if (tipoValido && extensaoValida) {
+const fileFilter = (req, file, cb) => { 
+  if (file.mimetype && file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new Error("Apenas imagens JPEG, PNG ou WebP são permitidas."), false);
+    cb(new Error("Apenas ficheiros de imagem são permitidos."), false);
   }
 };
 

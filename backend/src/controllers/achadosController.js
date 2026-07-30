@@ -1,7 +1,7 @@
 import db from "../config/db.js";
 import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
- 
+
 const BASE_URL = process.env.BASE_URL || "https://portal-talitabresolin.onrender.com";
 
 export const getAchados = async (req, res, next) => {
@@ -30,13 +30,17 @@ export const getAchadoById = async (req, res, next) => {
 
 export const createAchado = async (req, res, next) => {
   try {
-    const descricao = sanitize(req.body.descricao);
-    const sala      = sanitize(req.body.sala);
-    const foto_url  = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
     
- 
+    const descInput = req.body.descricao || req.body.titulo || "";
+    const salaInput = req.body.sala || req.body.local || "";
+
+    const descricao = sanitize(descInput);
+    const sala      = sanitize(salaInput);
+     
+    const foto_url = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
+  
     const hoje = new Date().toISOString().split("T")[0];
- 
+
     const [result] = await db.query(
       `INSERT INTO achados_perdidos (descricao, sala, foto_url, retirado, encontrado_em) 
        VALUES (?, ?, ?, 0, ?)`,
@@ -45,6 +49,7 @@ export const createAchado = async (req, res, next) => {
 
     return created(res, { id: result.insertId, mensagem: "Item cadastrado com sucesso." });
   } catch (err) {
+    console.error("Erro no createAchado:", err);
     next(err);
   }
 };
@@ -56,7 +61,8 @@ export const updateAchado = async (req, res, next) => {
 
     if (check.length === 0) return notFound(res, "Item não encontrado.");
 
-    const retirado = req.body.retirado === true || req.body.retirado === "true" ? 1 : 0;
+    const retirado = req.body.retirado === true || req.body.retirado === "true" || req.body.retirado == 1 ? 1 : 0;
+    
     await db.query(
       "UPDATE achados_perdidos SET retirado = ? WHERE id = ?", [retirado, id]
     );

@@ -1,17 +1,25 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
- 
 const EXTENSOES_VALIDAS = [".jpg", ".jpeg", ".png", ".webp"];
 
+ 
+const uploadDir = path.resolve("uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "src/uploads/"),
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
 
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
- 
-    const nome = `achado_${Date.now()}${ext}`;
+    const nome = `achado_${Date.now()}_${Math.round(Math.random() * 1e9)}${ext}`;
     cb(null, nome);
   },
 });
@@ -19,7 +27,7 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
 
-  const tipoValido     = TIPOS_PERMITIDOS.includes(file.mimetype);
+  const tipoValido = TIPOS_PERMITIDOS.includes(file.mimetype);
   const extensaoValida = EXTENSOES_VALIDAS.includes(ext);
 
   if (tipoValido && extensaoValida) {

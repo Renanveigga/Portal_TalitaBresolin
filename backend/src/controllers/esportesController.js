@@ -1,6 +1,8 @@
 import db from "../config/db.js";
 import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
+ 
+const BASE_URL = process.env.BASE_URL || "https://portal-talitabresolin.onrender.com";
 
 export const getEsportes = async (req, res, next) => {
   try {
@@ -20,7 +22,8 @@ export const createEsporte = async (req, res, next) => {
     const resumo      = req.body.resumo ? sanitize(req.body.resumo) : null;
     const medalha     = sanitize(req.body.medalha ?? "participacao");
     const data_evento = sanitize(req.body.data_evento);
-    const foto_url    = req.file ? `/uploads/${req.file.filename}` : null;
+     
+    const foto_url    = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
 
     const [result] = await db.query(
       `INSERT INTO esportes (titulo, modalidade, resumo, medalha, data_evento, foto_url)

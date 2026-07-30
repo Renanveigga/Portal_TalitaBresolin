@@ -5,7 +5,7 @@ import {
   Trophy, Search, Book, Megaphone, GeoAlt
 } from "react-bootstrap-icons";
 import styles from "./FeedCard.module.css";
- 
+
 const BASE_URL = "https://portal-talitabresolin.onrender.com";
 
 const TIPO_COLORS = {
@@ -47,18 +47,15 @@ function getInitials(nome = "") {
   const p = nome.split(" ");
   return (p[0]?.[0] ?? "") + (p[1]?.[0] ?? "");
 }
- 
+
 function formatImageUrl(url) {
   if (!url) return null;
-  
   if (url.includes("localhost:3000")) {
     return url.replace("http://localhost:3000", BASE_URL);
   }
-  
   if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
- 
   return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 

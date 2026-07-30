@@ -32,12 +32,15 @@ export const createAchado = async (req, res, next) => {
   try {
     const descricao = sanitize(req.body.descricao);
     const sala      = sanitize(req.body.sala);
-  
     const foto_url  = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
-
+    
+ 
+    const hoje = new Date().toISOString().split("T")[0];
+ 
     const [result] = await db.query(
-      "INSERT INTO achados_perdidos (descricao, sala, foto_url) VALUES (?, ?, ?)",
-      [descricao, sala, foto_url]
+      `INSERT INTO achados_perdidos (descricao, sala, foto_url, retirado, encontrado_em) 
+       VALUES (?, ?, ?, 0, ?)`,
+      [descricao, sala, foto_url, hoje]
     );
 
     return created(res, { id: result.insertId, mensagem: "Item cadastrado com sucesso." });

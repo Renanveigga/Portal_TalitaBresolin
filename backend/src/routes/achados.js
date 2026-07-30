@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   getAchados,
   getAchadoById,
@@ -15,7 +16,23 @@ const router = Router();
 router.get("/", getAchados);
 router.get("/:id", validateId, getAchadoById);
  
-router.post("/", protegerAdmin, upload.single("foto"), createAchado);
+router.post("/", protegerAdmin, (req, res, next) => {
+  const multerUpload = upload.single("foto");
+
+  multerUpload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+   
+      console.error("[Multer Error]:", err);
+      return res.status(400).json({ sucesso: false, erro: `Falha no ficheiro: ${err.message}` });
+    } else if (err) {
+     
+      console.error("[Upload Error]:", err);
+      return res.status(400).json({ sucesso: false, erro: err.message });
+    }
+     
+    next();
+  });
+}, createAchado);
 
 router.put("/:id", protegerAdmin, validateId, updateAchado);
 router.delete("/:id", protegerAdmin, validateId, deleteAchado);

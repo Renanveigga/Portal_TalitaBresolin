@@ -1,4 +1,4 @@
-import db from "../config/db.js";
+ import db from "../config/db.js";
 import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
 
@@ -31,25 +31,32 @@ export const getAchadoById = async (req, res, next) => {
 export const createAchado = async (req, res, next) => {
   try {
     
-    const descInput = req.body.descricao || req.body.titulo || "";
-    const salaInput = req.body.sala || req.body.local || "";
+    const descRaw = req.body.descricao || req.body.titulo || "";
+    const salaRaw = req.body.sala || req.body.local || "";
 
-    const descricao = sanitize(descInput);
-    const sala      = sanitize(salaInput);
-     
-    const foto_url = req.file ? `${BASE_URL}/uploads/${req.file.filename}` : null;
-  
-    const hoje = new Date().toISOString().split("T")[0];
+    const descricao = sanitize ? sanitize(descRaw) : descRaw;
+    const sala      = sanitize ? sanitize(salaRaw) : salaRaw;
+
+    if (!descricao || !sala) {
+      return badRequest(res, "Campos 'descricao' e 'sala' são obrigatórios.");
+    }
+ 
+    let foto_url = null;
+    if (req.file) {
+      foto_url = `${BASE_URL}/uploads/${req.file.filename}`;
+    }
+ 
+    const dataHoje = new Date().toISOString().slice(0, 10);
 
     const [result] = await db.query(
       `INSERT INTO achados_perdidos (descricao, sala, foto_url, retirado, encontrado_em) 
        VALUES (?, ?, ?, 0, ?)`,
-      [descricao, sala, foto_url, hoje]
+      [descricao, sala, foto_url, dataHoje]
     );
 
     return created(res, { id: result.insertId, mensagem: "Item cadastrado com sucesso." });
   } catch (err) {
-    console.error("Erro no createAchado:", err);
+    console.error("Erro detalhado no createAchado:", err);
     next(err);
   }
 };

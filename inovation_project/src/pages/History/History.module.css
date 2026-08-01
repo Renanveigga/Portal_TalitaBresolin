@@ -51,3 +51,104 @@
   line-height: 1.7;
   margin: 0;
 }
+
+.bioCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid #C0392B;
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  margin-bottom: 32px;
+}
+
+.bioPeriodo {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #C0392B;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.bioNome {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text-dark);
+  margin-bottom: 8px;
+}
+
+.bioTexto {
+  font-size: 13px;
+  color: var(--color-text-mid);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 36px 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.sectionSubtitle {
+  font-size: 13px;
+  color: var(--color-text-mid);
+  margin: 0 0 20px;
+}
+
+.diretoresList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.diretorRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  background: var(--color-white);
+}
+
+.diretorRow:nth-child(even) {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.diretorRow:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.diretorPeriodo {
+  flex-shrink: 0;
+  width: 110px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2E86C1;
+}
+
+.diretorInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.diretorNome {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.diretorNota {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--color-text-mid);
+}

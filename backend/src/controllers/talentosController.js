@@ -76,6 +76,7 @@ export const getCurriculo = async (req, res, next) => {
       return res.status(404).json({ sucesso: false, erro: "Currículo não encontrado." });
     }
     const pdfBuffer = rows[0].curriculo_url;
+    // Garante que o navegador interprete os bytes como PDF
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `inline; filename="curriculo_${id}.pdf"`);
 

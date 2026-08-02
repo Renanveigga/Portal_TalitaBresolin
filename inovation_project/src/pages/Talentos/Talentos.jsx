@@ -45,6 +45,11 @@ function TalentoCard({ talento, onAbrir }) {
 
   const isTI = talento.curso === "TI";
 
+  // Define a URL para buscar o currículo armazenado no MySQL
+  const urlCurriculo = talento.curriculo_url
+    ? `${API_URL}/talentos/${talento.id}/curriculo`
+    : null;
+
   return (
     <div className={styles.post}>
  
@@ -167,8 +172,8 @@ function TalentoCard({ talento, onAbrir }) {
               <Instagram size={14} /> Instagram
             </a>
           )}
-          {talento.curriculo_url && (
-            <a href={`${API_URL}/talentos/${talento.id}/curriculo`} target="_blank"
+          {urlCurriculo && (
+            <a href={urlCurriculo} target="_blank"
               rel="noopener noreferrer" className={`${styles.postLink} ${styles.postLinkCurriculo}`}
               onClick={(e) => e.stopPropagation()}>
               <FileEarmarkPdf size={14} /> Currículo
@@ -183,6 +188,11 @@ function TalentoCard({ talento, onAbrir }) {
 function TalentoModal({ talento, onFechar }) {
   if (!talento) return null;
   const isTI = talento.curso === "TI";
+
+  // Define a URL para buscar o currículo armazenado no MySQL
+  const urlCurriculo = talento.curriculo_url
+    ? `${API_URL}/talentos/${talento.id}/curriculo`
+    : null;
 
   return (
     <div className={styles.modal} onClick={onFechar}>
@@ -230,7 +240,7 @@ function TalentoModal({ talento, onFechar }) {
             </div>
           </div>
  
-          {(talento.email || talento.linkedin || talento.github || talento.instagram || talento.curriculo_url) && (
+          {(talento.email || talento.linkedin || talento.github || talento.instagram || urlCurriculo) && (
             <div className={styles.modalSection}>
               <p className={styles.modalLabel}>Contato</p>
               <div className={styles.modalContatos}>
@@ -254,8 +264,8 @@ function TalentoModal({ talento, onFechar }) {
                     <Instagram style={{ fontSize: "14px" }} /> <span>Instagram</span>
                   </a>
                 )}
-                {talento.curriculo_url && (
-                  <a href={`${API_URL}/talentos/${talento.id}/curriculo`} target="_blank"
+                {urlCurriculo && (
+                  <a href={urlCurriculo} target="_blank"
                     rel="noopener noreferrer" className={styles.contatoItem}>
                     <FileEarmarkPdf style={{ fontSize: "14px" }} /> <span>Ver Currículo</span>
                   </a>

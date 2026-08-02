@@ -46,7 +46,7 @@ function TalentoCard({ talento, onAbrir }) {
   const isTI = talento.curso === "TI";
 
   // Define a URL para buscar o currículo armazenado no MySQL
-  const urlCurriculo = talento.curriculo_url
+  const urlCurriculo = talento.tem_curriculo
     ? `${API_URL}/talentos/${talento.id}/curriculo`
     : null;
 
@@ -190,7 +190,7 @@ function TalentoModal({ talento, onFechar }) {
   const isTI = talento.curso === "TI";
 
   // Define a URL para buscar o currículo armazenado no MySQL
-  const urlCurriculo = talento.curriculo_url
+  const urlCurriculo = talento.tem_curriculo
     ? `${API_URL}/talentos/${talento.id}/curriculo`
     : null;
 

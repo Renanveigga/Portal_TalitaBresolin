@@ -25,7 +25,7 @@ export const getTalentos = async (req, res, next) => {
     const { curso, habilidade, ordem } = req.query;
     const params = [];
 
-    let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em FROM talentos WHERE 1=1";
+    let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em, CASE WHEN curriculo_url IS NOT NULL THEN 1 ELSE 0 END AS tem_curriculo FROM talentos WHERE 1=1";
 
     if (curso && ["TI", "ADM"].includes(curso)) {
       query += " AND curso = ?";
@@ -60,7 +60,9 @@ export const getTalentos = async (req, res, next) => {
 
 export const getTalentosAdmin = async (req, res, next) => {
   try {
-    const [rows] = await db.query("SELECT * FROM talentos ORDER BY criado_em DESC");
+    const [rows] = await db.query(
+      "SELECT id, nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, status, criado_em, CASE WHEN curriculo_url IS NOT NULL THEN 1 ELSE 0 END AS tem_curriculo FROM talentos ORDER BY criado_em DESC"
+    );
     const talentos = rows.map((t) => ({ ...t, bio_html: renderBio(t.bio) }));
     return ok(res, talentos);
   } catch (err) {

@@ -9,11 +9,10 @@ const { window } = new JSDOM("");
 const purify = DOMPurify(window);
 
 marked.setOptions({ gfm: true, breaks: true });
-
-// Função síncrona segura para renderizar o Markdown da bio
+ 
 function renderBio(bio) {
   if (!bio) return null;
-  // parseInline é síncrono e não retorna Promise
+  
   const html = marked.parseInline(String(bio));
   return purify.sanitize(html, {
     ALLOWED_TAGS: ["p", "strong", "em", "ul", "ol", "li", "a", "br", "h3", "h4", "blockquote", "code"],
@@ -68,6 +67,23 @@ export const getTalentosAdmin = async (req, res, next) => {
     next(err);
   }
 };
+ 
+export const getCurriculo = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await db.query("SELECT curriculo_url FROM talentos WHERE id = ?", [id]);
+    if (rows.length === 0 || !rows[0].curriculo_url) {
+      return res.status(404).json({ sucesso: false, erro: "Currículo não encontrado." });
+    }
+    const pdfBuffer = rows[0].curriculo_url;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="curriculo_${id}.pdf"`);
+
+    return res.send(pdfBuffer);
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const createTalento = async (req, res, next) => {
   try {
@@ -84,13 +100,13 @@ export const createTalento = async (req, res, next) => {
     const instagram = req.body.instagram ? sanitize(req.body.instagram) : null;
     const email = req.body.email ? sanitize(req.body.email) : null;
     const bio = req.body.bio ? String(req.body.bio).slice(0, 5000) : null;
-
-    const foto_url = req.files?.foto?.[0] 
-      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}` 
+ 
+    const foto_url = req.files?.foto?.[0]
+      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}`
       : null;
-      
-    const curriculo_url = req.files?.curriculo?.[0] 
-      ? `/uploads/curriculos/${req.files.curriculo[0].filename}` 
+ 
+    const curriculo_binario = req.files?.curriculo?.[0]
+      ? req.files.curriculo[0].buffer
       : null;
 
     const query = `
@@ -100,7 +116,7 @@ export const createTalento = async (req, res, next) => {
     `;
 
     const [result] = await db.query(query, [
-      nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url
+      nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_binario
     ]);
 
     return created(res, { id: result.insertId, mensagem: "Perfil enviado com sucesso!" });

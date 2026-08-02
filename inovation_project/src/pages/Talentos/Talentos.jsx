@@ -168,8 +168,8 @@ function TalentoCard({ talento, onAbrir }) {
             </a>
           )}
           {talento.curriculo_url && (
-            <a href={`${API_URL}${talento.curriculo_url}`} target="_blank"
-              rel="noreferrer" className={`${styles.postLink} ${styles.postLinkCurriculo}`}
+            <a href={`${API_URL}/talentos/${talento.id}/curriculo`} target="_blank"
+              rel="noopener noreferrer" className={`${styles.postLink} ${styles.postLinkCurriculo}`}
               onClick={(e) => e.stopPropagation()}>
               <FileEarmarkPdf size={14} /> Currículo
             </a>
@@ -255,8 +255,8 @@ function TalentoModal({ talento, onFechar }) {
                   </a>
                 )}
                 {talento.curriculo_url && (
-                  <a href={`${API_URL}${talento.curriculo_url}`} target="_blank"
-                    rel="noreferrer" className={styles.contatoItem}>
+                  <a href={`${API_URL}/talentos/${talento.id}/curriculo`} target="_blank"
+                    rel="noopener noreferrer" className={styles.contatoItem}>
                     <FileEarmarkPdf style={{ fontSize: "14px" }} /> <span>Ver Currículo</span>
                   </a>
                 )}

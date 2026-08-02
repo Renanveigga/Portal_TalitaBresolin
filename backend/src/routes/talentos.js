@@ -5,22 +5,14 @@ import {
   getTalentos,
   getTalentosAdmin,
   createTalento,
+    getCurriculo,
   updateStatus,
   deleteTalento,
 } from "../controllers/talentosController.js";
 import { protegerAdmin } from "../middlewares/adminAuth.js";
 import { validate, validateId } from "../middlewares/validate.js";
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const pasta = file.fieldname === "foto" ? "fotos-perfil" : "curriculos";
-    cb(null, `src/uploads/${pasta}/`);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${file.fieldname}_${Date.now()}${ext}`);
-  },
-});
+ 
+const storage = multer.memoryStorage();
 
 const imagemFilter = (req, file, cb) => {
   if (file.fieldname === "foto") {
@@ -45,7 +37,7 @@ const upload = multer({
   { name: "foto",      maxCount: 1 },
   { name: "curriculo", maxCount: 1 },
 ]);
- 
+
 const schemaTalento = {
   nome:        { required: true, maxLength: 255 },
   curso:       { required: true, enum: ["TI", "ADM"] },
@@ -61,6 +53,8 @@ const router = Router();
 
 router.get("/",       getTalentos);
 router.get("/admin",  protegerAdmin, getTalentosAdmin);
+ 
+router.get("/:id/curriculo", getCurriculo);
 
 router.post(
   "/",

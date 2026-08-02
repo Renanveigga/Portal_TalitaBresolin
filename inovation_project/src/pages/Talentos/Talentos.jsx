@@ -7,8 +7,8 @@ import styles from "./Talentos.module.css";
 import { getTalentos } from "../../services/talentosService";
 import CadastroTalento from "./CadastroTalento";
 import { SkeletonCard } from "../../components/Skeleton/Skeleton";
-
-const API_URL = "http://localhost:3000";
+ 
+const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
 
 const HABILIDADES_SUGERIDAS = [
   "JavaScript","Python","React","Node.js","MySQL",

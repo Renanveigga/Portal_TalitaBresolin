@@ -11,7 +11,7 @@ import {
   Trash 
 } from "react-bootstrap-icons";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
 
 function getInitials(nome) {
   if (!nome) return "";

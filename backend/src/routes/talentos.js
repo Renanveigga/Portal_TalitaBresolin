@@ -45,7 +45,6 @@ const upload = multer({
   { name: "foto",      maxCount: 1 },
   { name: "curriculo", maxCount: 1 },
 ]);
-
  
 const schemaTalento = {
   nome:        { required: true, maxLength: 255 },
@@ -63,12 +62,10 @@ const router = Router();
 router.get("/",       getTalentos);
 router.get("/admin",  protegerAdmin, getTalentosAdmin);
 
- 
 router.post(
   "/",
   upload,
   (req, res, next) => {
-    
     if (req.body && req.body.ano) {
       req.body.ano = req.body.ano.toString().trim();
     }

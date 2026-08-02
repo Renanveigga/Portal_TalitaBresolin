@@ -3,7 +3,7 @@ import { GeoAlt, Clock, Search } from "react-bootstrap-icons";
 import styles from "./Lost.module.css";
 import { getAchados } from "../../services/achadosService";
  
-const BASE_URL = "https://portal-talitabresolin.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
 
  
 function formatImageUrl(url) {

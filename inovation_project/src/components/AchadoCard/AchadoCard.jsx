@@ -1,7 +1,7 @@
 import styles from "./AchadoCard.module.css";
 import { CalendarEvent } from "react-bootstrap-icons";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
 
 export default function AchadoCard({ item }) {
   const status = item.retirado ? "retirado" : "pendente";

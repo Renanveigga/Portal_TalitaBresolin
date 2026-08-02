@@ -3,7 +3,7 @@ import { Trophy, Calendar2, TrophyFill } from 'react-bootstrap-icons';
 import styles from "./Esportes.module.css";
 import { getEsportes } from "../../services/esportesService";
  
-const BASE_URL = "https://portal-talitabresolin.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
  
 function formatImageUrl(url) {
   if (!url) return null;

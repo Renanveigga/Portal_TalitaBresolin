@@ -12,7 +12,7 @@ import {
 } from "react-bootstrap-icons";
 import styles from "./AdminEsportes.module.css";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
 
 export default function AdminEsportes() {
   const [esportes, setEsportes] = useState([]);

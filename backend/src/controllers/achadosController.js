@@ -1,10 +1,7 @@
 import db from "../config/db.js";
 import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
-
-const BASE_URL =
-  process.env.BASE_URL || "https://portal-talitabresolin.onrender.com";
-
+ 
 export const getAchados = async (req, res, next) => {
   try {
     const [rows] = await db.query(
@@ -52,13 +49,11 @@ export const createAchado = async (req, res, next) => {
     }
 
     let arquivo = null;
-
-    // upload.single("foto")
+ 
     if (req.file) {
       arquivo = req.file;
     }
-
-    // upload.fields([{ name: "foto", maxCount: 1 }])
+ 
     if (!arquivo && req.files?.foto?.length) {
       arquivo = req.files.foto[0];
     }
@@ -66,7 +61,7 @@ export const createAchado = async (req, res, next) => {
     let foto_url = null;
 
     if (arquivo?.filename) {
-      foto_url = `${BASE_URL}/uploads/${arquivo.filename}`;
+      foto_url = `/uploads/${arquivo.filename}`;
     }
 
     const dataHoje = new Date().toISOString().slice(0, 10);

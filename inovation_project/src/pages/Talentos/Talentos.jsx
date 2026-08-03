@@ -7,6 +7,7 @@ import styles from "./Talentos.module.css";
 import { getTalentos } from "../../services/talentosService";
 import CadastroTalento from "./CadastroTalento";
 import { SkeletonCard } from "../../components/Skeleton/Skeleton";
+import { formatImageUrl } from "../../utils/formatImageUrl";
  
 const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
 
@@ -49,15 +50,16 @@ function TalentoCard({ talento, onAbrir }) {
   const urlCurriculo = talento.tem_curriculo
     ? `${API_URL}/talentos/${talento.id}/curriculo`
     : null;
+  const fotoUrl = formatImageUrl(talento.foto_url);
 
   return (
     <div className={styles.post}>
  
       <div className={styles.postHeader}>
         <div className={styles.postAvatar}>
-          {talento.foto_url ? (
+          {fotoUrl ? (
             <img
-              src={`${API_URL}${talento.foto_url}`}
+              src={fotoUrl}
               alt={talento.nome}
               className={styles.postAvatarImg}
             />
@@ -89,10 +91,10 @@ function TalentoCard({ talento, onAbrir }) {
         </span>
       </div>
  
-      {talento.foto_url && (
+      {fotoUrl && (
         <div className={styles.postCover}>
           <img
-            src={`${API_URL}${talento.foto_url}`}
+            src={fotoUrl}
             alt={talento.nome}
             className={styles.postCoverImg}
           />
@@ -193,6 +195,7 @@ function TalentoModal({ talento, onFechar }) {
   const urlCurriculo = talento.tem_curriculo
     ? `${API_URL}/talentos/${talento.id}/curriculo`
     : null;
+  const fotoUrl = formatImageUrl(talento.foto_url);
 
   return (
     <div className={styles.modal} onClick={onFechar}>
@@ -208,8 +211,8 @@ function TalentoModal({ talento, onFechar }) {
           }}
         >
           <div className={styles.modalAvatar}>
-            {talento.foto_url ? (
-              <img src={`${API_URL}${talento.foto_url}`} alt={talento.nome}
+            {fotoUrl ? (
+              <img src={fotoUrl} alt={talento.nome}
                 className={styles.modalAvatarImg} />
             ) : (
               <span className={styles.modalAvatarInitials}>{getInitials(talento.nome)}</span>
@@ -240,8 +243,30 @@ function TalentoModal({ talento, onFechar }) {
             </div>
           </div>
 
-           
-           
+          {/* Botão de destaque para baixar/ver o currículo em PDF */}
+          {urlCurriculo && (
+            <div className="secao-acoes" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+              <a
+                href={urlCurriculo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-curriculo"
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#f59e0b',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                📄 Baixar / Ver Currículo
+              </a>
+            </div>
+          )}
  
           {(talento.email || talento.linkedin || talento.github || talento.instagram || urlCurriculo) && (
             <div className={styles.modalSection}>

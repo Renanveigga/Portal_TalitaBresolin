@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { UPLOADS_DIR, ensureUploadsSubdir } from "./utils/uploadsPath.js";
 
 import authRouter from "./routes/auth.js";
 import avisosRouter from "./routes/avisos.js";
@@ -30,14 +31,8 @@ for (const varName of ENV_REQUIRED) {
     process.exit(1);
   }
 }
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
  
-const uploadsDir = path.join(__dirname, "src", "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const uploadsDir = ensureUploadsSubdir();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

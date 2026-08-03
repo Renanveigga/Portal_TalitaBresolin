@@ -1,18 +1,19 @@
 import styles from "./AchadoCard.module.css";
 import { CalendarEvent } from "react-bootstrap-icons";
-
-const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
+import { formatImageUrl } from "../../utils/formatImageUrl";
 
 export default function AchadoCard({ item }) {
   const status = item.retirado ? "retirado" : "pendente";
+   
+  const fotoUrl = formatImageUrl(item.foto_url);
 
   return (
     <div className={`${styles.card} ${item.retirado ? styles.retirado : ""}`}>
 
       <div className={styles.fotoBox}>
-        {item.foto_url ? (
+        {fotoUrl ? (
           <img
-            src={`${API_URL}${item.foto_url}`}
+            src={fotoUrl}
             alt={item.desc}
             className={styles.foto}
           />

@@ -4,9 +4,10 @@ import path from "path";
 import { getEsportes, createEsporte, deleteEsporte } from "../controllers/esportesController.js";
 import { protegerAdmin } from "../middlewares/adminAuth.js";
 import { validate, validateId } from "../middlewares/validate.js";
-
+import { ensureUploadsSubdir } from "../utils/uploadsPath.js";
+ 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "src/uploads/"),
+  destination: (req, file, cb) => cb(null, ensureUploadsSubdir()),
   filename:    (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     cb(null, `esporte_${Date.now()}${ext}`);

@@ -1,9 +1,12 @@
+import fs from "fs";
+import path from "path";
 import db from "../config/db.js";
 import { marked } from "marked";
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import { ok, created, notFound, badRequest } from "../utils/response.js";
 import { sanitize } from "../middlewares/validate.js";
+import { ensureUploadsSubdir } from "../utils/uploadsPath.js";
 
 const { window } = new JSDOM("");
 const purify = DOMPurify(window);
@@ -104,10 +107,16 @@ export const createTalento = async (req, res, next) => {
     const email = req.body.email ? sanitize(req.body.email) : null;
     const bio = req.body.bio ? String(req.body.bio).slice(0, 5000) : null;
  
-    const foto_url = req.files?.foto?.[0]
-      ? `/uploads/fotos-perfil/${req.files.foto[0].filename}`
-      : null;
- 
+    let foto_url = null;
+    const arquivoFoto = req.files?.foto?.[0];
+    if (arquivoFoto) {
+      const destino = ensureUploadsSubdir("fotos-perfil");
+      const ext = path.extname(arquivoFoto.originalname || "").toLowerCase() || ".jpg";
+      const nomeArquivo = `foto_${Date.now()}_${Math.round(Math.random() * 1e9)}${ext}`;
+      fs.writeFileSync(path.join(destino, nomeArquivo), arquivoFoto.buffer);
+      foto_url = `/uploads/fotos-perfil/${nomeArquivo}`;
+    }
+
     const curriculo_binario = req.files?.curriculo?.[0]
       ? req.files.curriculo[0].buffer
       : null;

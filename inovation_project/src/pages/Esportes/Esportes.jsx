@@ -2,19 +2,8 @@ import { useState, useEffect } from "react";
 import { Trophy, Calendar2, TrophyFill } from 'react-bootstrap-icons';
 import styles from "./Esportes.module.css";
 import { getEsportes } from "../../services/esportesService";
+import { formatImageUrl } from "../../utils/formatImageUrl";
  
-const API_URL = import.meta.env.VITE_API_URL || "https://portal-talitabresolin.onrender.com";
- 
-function formatImageUrl(url) {
-  if (!url) return null;
-  if (url.includes("localhost:3000")) {
-    return url.replace("http://localhost:3000", BASE_URL);
-  }
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
-}
 
 const MEDALHA_CONFIG = {
   ouro:         { label: "🥇 Ouro",        cor: "#F1C40F", bg: "#FEF9E7" },

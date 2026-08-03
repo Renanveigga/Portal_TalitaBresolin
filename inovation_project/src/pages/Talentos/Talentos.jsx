@@ -240,30 +240,8 @@ function TalentoModal({ talento, onFechar }) {
             </div>
           </div>
 
-          {/* Botão de destaque para baixar/ver o currículo em PDF */}
-          {urlCurriculo && (
-            <div className="secao-acoes" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-              <a
-                href={urlCurriculo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-curriculo"
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#f59e0b',
-                  color: '#fff',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  fontWeight: 'bold',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                📄 Baixar / Ver Currículo
-              </a>
-            </div>
-          )}
+           
+           
  
           {(talento.email || talento.linkedin || talento.github || talento.instagram || urlCurriculo) && (
             <div className={styles.modalSection}>

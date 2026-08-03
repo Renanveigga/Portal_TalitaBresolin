@@ -27,8 +27,8 @@ export const getTalentos = async (req, res, next) => {
   try {
     const { curso, habilidade, ordem } = req.query;
     const params = [];
-
-    let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em, CASE WHEN curriculo_url IS NOT NULL THEN 1 ELSE 0 END AS tem_curriculo FROM talentos WHERE 1=1";
+ 
+    let query = "SELECT id, nome, curso, ano, habilidades, foto_url, bio, criado_em, CASE WHEN curriculo_url IS NOT NULL THEN 1 ELSE 0 END AS tem_curriculo FROM talentos WHERE status = 'aprovado'";
 
     if (curso && ["TI", "ADM"].includes(curso)) {
       query += " AND curso = ?";
@@ -81,7 +81,7 @@ export const getCurriculo = async (req, res, next) => {
       return res.status(404).json({ sucesso: false, erro: "Currículo não encontrado." });
     }
     const pdfBuffer = rows[0].curriculo_url;
-    // Garante que o navegador interprete os bytes como PDF
+    
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `inline; filename="curriculo_${id}.pdf"`);
 
@@ -106,7 +106,7 @@ export const createTalento = async (req, res, next) => {
     const instagram = req.body.instagram ? sanitize(req.body.instagram) : null;
     const email = req.body.email ? sanitize(req.body.email) : null;
     const bio = req.body.bio ? String(req.body.bio).slice(0, 5000) : null;
- 
+  
     let foto_url = null;
     const arquivoFoto = req.files?.foto?.[0];
     if (arquivoFoto) {
@@ -120,11 +120,11 @@ export const createTalento = async (req, res, next) => {
     const curriculo_binario = req.files?.curriculo?.[0]
       ? req.files.curriculo[0].buffer
       : null;
-
+ 
     const query = `
       INSERT INTO talentos 
-      (nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (nome, curso, ano, habilidades, linkedin, github, email, instagram, bio, foto_url, curriculo_url, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente')
     `;
 
     const [result] = await db.query(query, [

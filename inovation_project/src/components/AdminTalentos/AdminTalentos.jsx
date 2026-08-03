@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getTalentosAdmin, updateStatus, deleteTalento } from "../../services/talentosService";
 import styles from "./AdminTalentos.module.css";
+import { formatImageUrl } from "../../utils/formatImageUrl";
 import { 
   Star, 
   HourglassSplit, 
@@ -86,7 +87,7 @@ export default function AdminTalentos() {
 
             <div className={`${styles.avatar} ${t.curso === "TI" ? styles.avatarTI : styles.avatarADM}`}>
               {t.foto_url
-                ? <img src={`${API_URL}${t.foto_url}`} alt={t.nome} className={styles.avatarImg} />
+                ? <img src={formatImageUrl(t.foto_url)} alt={t.nome} className={styles.avatarImg} />
                 : <span>{getInitials(t.nome)}</span>
               }
             </div>
@@ -98,11 +99,12 @@ export default function AdminTalentos() {
             </div>
 
             <div className={styles.links}>
-              {t.curriculo_url && (
+               
+              {t.tem_curriculo && (
                 <a 
-                  href={`${API_URL}${t.curriculo_url}`} 
+                  href={`${API_URL}/talentos/${t.id}/curriculo`} 
                   target="_blank" 
-                  rel="noreferrer" 
+                  rel="noopener noreferrer" 
                   className={styles.linkBtn}
                   style={{ fontSize: '14px' }}
                 >

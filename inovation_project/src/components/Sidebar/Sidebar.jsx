@@ -5,14 +5,14 @@ import styles from "./Sidebar.module.css";
 import { NAV_ITEMS } from "../../data/Mockdata";
 
 const ROUTE_MAP = {
-  home:    "/",
+  home: "/",
   library: "/biblioteca",
-  lost:    "/achados",
+  lost: "/achados",
   courses: "/cursos",
   history: "/historia",
-  talentos:"/talentos",
-  esportes:"/esportes",
-  admin:   "/admin",
+  talentos: "/talentos",
+  esportes: "/esportes",
+  admin: "/admin",
 };
 
 export default function Sidebar({ onNavigate, dark, toggleTheme }) {
@@ -48,7 +48,9 @@ export default function Sidebar({ onNavigate, dark, toggleTheme }) {
       <aside className={`${styles.sidebar} ${aberta ? styles.sidebarAberta : ""}`}>
 
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>校</div>
+          <div className={styles.logoIcon}>
+            <img src="../../public/CTB_favicon.ico" alt="Logo do Colégio" />
+          </div>
           <div style={{ flex: 1 }}>
             <p className={styles.logoTitle}>Portal Escolar</p>
             <p className={styles.logoSub}>Colégio Estadual</p>
@@ -78,7 +80,7 @@ export default function Sidebar({ onNavigate, dark, toggleTheme }) {
 
         <div className={styles.themeToggle}>
           <span className={styles.themeLabel}>
-            {dark ? <><Sun size={15} style={{marginRight:6}} /> Modo Claro</> : <><MoonStars size={15} style={{marginRight:6}} /> Modo Escuro</>}
+            {dark ? <><Sun size={15} style={{ marginRight: 6 }} /> Modo Claro</> : <><MoonStars size={15} style={{ marginRight: 6 }} /> Modo Escuro</>}
           </span>
           <button className={`${styles.toggleBtn} ${dark ? styles.toggleDark : ""}`} onClick={toggleTheme}>
             <div className={styles.toggleThumb} />

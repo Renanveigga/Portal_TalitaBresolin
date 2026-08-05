@@ -49,7 +49,7 @@ export default function Sidebar({ onNavigate, dark, toggleTheme }) {
 
         <div className={styles.logo}>
           <div className={styles.logoIcon}>
-            <img src="../../public/CTB_favicon.ico" alt="Logo do Colégio" />
+            <img src="/CTB_favicon.ico" alt="Logo do Colégio" />
           </div>
           <div style={{ flex: 1 }}>
             <p className={styles.logoTitle}>Portal Escolar</p>

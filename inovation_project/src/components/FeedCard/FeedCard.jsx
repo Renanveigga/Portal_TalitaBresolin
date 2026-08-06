@@ -2,31 +2,31 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Heart, HeartFill, Share, BoxArrowUpRight,
-  Trophy, Search, Book, Megaphone, GeoAlt
+  Trophy, Search, Book, Megaphone, GeoAlt, Stars, SuitcaseLgFill,
 } from "react-bootstrap-icons";
 import styles from "./FeedCard.module.css";
 
 const BASE_URL = "https://portal-talitabresolin.onrender.com";
 
 const TIPO_COLORS = {
-  evento:   "#2E86C1",
-  prova:    "#C0392B",
-  feriado:  "#8E44AD",
+  evento: "#2E86C1",
+  prova: "#C0392B",
+  feriado: "#8E44AD",
   palestra: "#1E8449",
 };
 
 const FONTE_CONFIG = {
-  aviso:   { label: "Coordenação",        icon: <Megaphone size={14} />,  cor: "#8E44AD" },
-  livro:   { label: "Biblioteca",        icon: <Book size={14} />,     cor: "#2E86C1" },
-  achado:  { label: "Achados & Perdidos",icon: <Search size={14} />,    cor: "#E67E22" },
-  talento: { label: "Banco de Talentos", icon: "🌟",                     cor: "#27AE60" },
-  esporte: { label: "Esportes",          icon: <Trophy size={14} />,    cor: "#F1C40F" },
+  aviso: { label: "Coordenação", icon: <Megaphone size={14} />, cor: "#8E44AD" },
+  livro: { label: "Biblioteca", icon: <Book size={14} />, cor: "#2E86C1" },
+  achado: { label: "Achados & Perdidos", icon: <Search size={14} />, cor: "#E67E22" },
+  talento: { label: "Banco de Talentos", icon: <Stars size={14} />, cor: "#27AE60" },
+  esporte: { label: "Esportes", icon: <Trophy size={14} />, cor: "#F1C40F" },
 };
 
 const ROTAS = {
-  aviso:   "/",
-  livro:   "/biblioteca",
-  achado:  "/achados",
+  aviso: "/",
+  livro: "/biblioteca",
+  achado: "/achados",
   talento: "/talentos",
   esporte: "/esportes",
 };
@@ -37,8 +37,8 @@ const MEDALHA_EMOJI = {
 
 function timeAgo(date) {
   const diff = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (diff < 60)    return "agora mesmo";
-  if (diff < 3600)  return `${Math.floor(diff / 60)}min`;
+  if (diff < 60) return "agora mesmo";
+  if (diff < 3600) return `${Math.floor(diff / 60)}min`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
   return `${Math.floor(diff / 86400)}d`;
 }
@@ -61,8 +61,8 @@ function formatImageUrl(url) {
 
 export default function FeedCard({ item }) {
   const navigate = useNavigate();
-  const [liked, setLiked]     = useState(false);
-  const [likes, setLikes]     = useState(Math.floor(Math.random() * 30) + 1);
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(Math.floor(Math.random() * 30) + 1);
   const fonte = FONTE_CONFIG[item.tipo_feed] ?? FONTE_CONFIG.aviso;
 
   const handleLike = (e) => {
@@ -104,9 +104,16 @@ export default function FeedCard({ item }) {
         )}
         {item.tipo_feed === "talento" && item.curso && (
           <span className={styles.postTipoBadge}
-            style={{ background: item.curso === "TI" ? "#EBF5FB" : "#FEF9E7",
-                     color:      item.curso === "TI" ? "#2E86C1" : "#F39C12" }}>
-            {item.curso === "TI" ? "💻" : "📊"} {item.curso}
+            style={{
+              background: item.curso === "TI" ? "#EBF5FB" : "#FEF9E7",
+              color: item.curso === "TI" ? "#2E86C1" : "#F39C12"
+            }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              {item.curso === "TI" ? <SuitcaseLgFill size={14} /> : null}
+              <span>:</span>
+              <SuitcaseLgFill size={14} />
+            </span>
+            {item.curso}
           </span>
         )}
       </div>
@@ -123,9 +130,11 @@ export default function FeedCard({ item }) {
           {item.tipo_feed === "talento" ? (
             <div className={styles.postTalentoBody}>
               <div className={styles.postTalentoAvatar}
-                style={{ background: item.curso === "TI"
-                  ? "linear-gradient(135deg,#1B4F72,#2E86C1)"
-                  : "linear-gradient(135deg,#7D6608,#F39C12)" }}>
+                style={{
+                  background: item.curso === "TI"
+                    ? "linear-gradient(135deg,#1B4F72,#2E86C1)"
+                    : "linear-gradient(135deg,#7D6608,#F39C12)"
+                }}>
                 {getInitials(item.titulo)}
               </div>
               <div>

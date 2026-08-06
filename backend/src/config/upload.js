@@ -1,4 +1,5 @@
 import multer from "multer";
+import path from "path";
 import { ensureUploadsSubdir } from "../utils/uploadsPath.js";
  
 const uploadDir = ensureUploadsSubdir();

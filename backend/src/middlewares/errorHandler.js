@@ -1,4 +1,3 @@
-
 export function errorHandler(err, req, res, next) {
 
   if (err.type === "entity.parse.failed") {

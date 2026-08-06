@@ -47,23 +47,36 @@ app.use(
 );
  
 const allowedOrigins = [
-  process.env.CORS_ORIGIN,
+  "https://portal-talita-bresolin.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
+  process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+     
+    if (!origin) return callback(null, true);
+
+    const liberado =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin); 
+
+    if (liberado) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Origem bloqueada: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+ 
+app.use(cors(corsOptions));
+ 
  
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
